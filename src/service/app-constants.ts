@@ -12,10 +12,12 @@ export class AppConstants {
   static REMOVE_DRAUGHT: string = 'remove draught';
   static JWT_SECRET: string = 'abc';
   static TOKEN_EXPIRES: number = 3600 * 6;
-  static APP_NAME: string = 'shashki.online API Server';
+  static APP_NAME: string = 'mySandbox API Server';
   static APP_SETTINGS_DIR: string = '.mysandbox';
   static USER_HOME: string = '/Users/aleksey/';
   static LOG_PATH: string = AppConstants.USER_HOME + AppConstants.APP_SETTINGS_DIR + '/logs/server.log';
   static PATH_TO_SERVER_CERTIFICATE: string = AppConstants.USER_HOME + AppConstants.APP_SETTINGS_DIR + '/ssl/server.crt';
   static PATH_TO_SERVER_KEY: string = AppConstants.USER_HOME + AppConstants.APP_SETTINGS_DIR + '/ssl/server.key';
+  static DB_URL: string = 'mongodb://localhost/mysandbox';
+  static APP_VERSION: string = '1.0.0';
 }

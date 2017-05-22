@@ -28,20 +28,22 @@ export interface IUser extends mongoose.Document {
  */
 
 const UserSchema = new Schema({
-    name: {type: String, default: ''},
-    email: {type: String, default: '', unique: true},
-    provider: {type: String, default: ''},
-    hashed_password: {type: String, default: ''},
-    authToken: {type: String, default: ''},
-    facebook: {},
-    twitter: {},
-    google: {},
-    vk: {}
-  }, {
-    timestamps: true
-  });
+  name: {type: String, default: ''},
+  email: {type: String, default: '', unique: true},
+  provider: {type: String, default: ''},
+  hashed_password: {type: String, default: ''},
+  authToken: {type: String, default: ''},
+  facebook: {},
+  twitter: {},
+  google: {},
+  vk: {}
+}, {
+  timestamps: true
+});
 
-const validatePresenceOf = value => value && value.length;
+const validatePresenceOf = (value: string) => {
+  value && value.length;
+};
 
 /**
  * Virtuals
@@ -64,27 +66,27 @@ const validatePresenceOf = value => value && value.length;
 
 // the below 5 validations only apply if you are signing up traditionally
 
-UserSchema.path('name').validate(function (name) {
+UserSchema.path('name').validate((name: string) => {
   if (this.skipValidation()) return true;
   return name.length;
 }, 'Name cannot be blank');
 
-UserSchema.path('email').validate(function (email) {
-  if (this.skipValidation()) return true;
-  return email.length;
-}, 'Email cannot be blank');
+// UserSchema.path('email').validate(function (email) {
+//   if (this.skipValidation()) return true;
+//   return email.length;
+// }, 'Email cannot be blank');
 
-UserSchema.path('email').validate(function (email, fn) {
-  const User = mongoose.model('user');
-  if (this.skipValidation()) fn(true);
-
-  // Check only when it is a new user or when email field is modified
-  if (this.isNew || this.isModified('email')) {
-    User.find({email: email}).exec(function (err, users) {
-      fn(!err && users.length === 0);
-    });
-  } else fn(true);
-}, 'Email already exists');
+// UserSchema.path('email').validate(function (email, fn) {
+//   const User = mongoose.model('user');
+//   if (this.skipValidation()) fn(true);
+//
+//   Check only when it is a new user or when email field is modified
+// if (this.isNew || this.isModified('email')) {
+//   User.find({email: email}).exec(function (err, users) {
+//     fn(!err && users.length === 0);
+//   });
+// } else fn(true);
+// }, 'Email already exists');
 
 // UserSchema.plugin(mongooseUniqueValidator);
 
@@ -126,9 +128,9 @@ UserSchema.methods = {
    * @api public
    */
 
-  authenticate: function (plainText) {
-    return this.encryptPassword(plainText) == this.hashed_password;
-  },
+  // authenticate: function (plainText) {
+  //   return this.encryptPassword(plainText) == this.hashed_password;
+  // },
 
   /**
    * Make salt
@@ -181,12 +183,12 @@ UserSchema.statics = {
    * @api private
    */
 
-  load: function (options, cb) {
-    options.select = options.select || 'name';
-    return this.findOne(options.criteria)
-      .select(options.select)
-      .exec(cb);
-  }
+  // load: function (options, cb) {
+  //   options.select = options.select || 'name';
+  //   return this.findOne(options.criteria)
+  //     .select(options.select)
+  //     .exec(cb);
+  // }
 };
 
 export let UserModel = mongoose.model<IUser>('user', UserSchema, 'users', true);

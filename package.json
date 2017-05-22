@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "./node_modules/.bin/cross-env NODE_ENV=development ./node_modules/.bin/nodemon ./bin/www",
-    "debug": "./node_modules/.bin/cross-env NODE_ENV=development ./node_modules/.bin/nodemon --inspect ./bin/www",
+    "debug": "./node_modules/.bin/cross-env NODE_ENV=development ./node_modules/.bin/nodemon --inspect -e ts ./bin/www",
     "test": "mocha -R spec test/*",
     "grunt": "grunt watch"
   },
@@ -14,6 +14,7 @@
     "@types/restify": "^4.3.2",
     "@types/uuid": "^2.0.29",
     "bcryptjs": "^2.4.3",
+    "http-status-enum": "^1.0.2",
     "mongoose": "^4.10.1",
     "nodemon": "^1.11.0",
     "restify": "^4.3.0",

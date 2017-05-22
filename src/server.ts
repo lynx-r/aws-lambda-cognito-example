@@ -6,6 +6,7 @@ import {MongoService} from "./service/mongo.service";
 import Logger = require("bunyan");
 import {AppConstants} from "./service/app-constants";
 import fs = require('fs');
+import {ArticleRoute} from "./routes/articles.route";
 
 /**
  * The server.
@@ -48,9 +49,10 @@ export class Server {
     });
     //create expressjs application
     this.server = restify.createServer({
-      certificate: fs.readFileSync(AppConstants.PATH_TO_SERVER_CERTIFICATE),
-      key: fs.readFileSync(AppConstants.PATH_TO_SERVER_KEY),
+      // certificate: fs.readFileSync(AppConstants.PATH_TO_SERVER_CERTIFICATE),
+      // key: fs.readFileSync(AppConstants.PATH_TO_SERVER_KEY),
       name: AppConstants.APP_NAME,
+      version: AppConstants.APP_VERSION,
       log: this.logger,
     });
   }
@@ -84,7 +86,7 @@ export class Server {
   public api() {
     // let router: express.Router = express.Router();
     // IndexRoute.INSTANCE.create(router);
-    // ArticleRoute.INSTANCE.create(router);
+    ArticleRoute.INSTANCE.create(this.server);
     // PassportRoute.INSTANCE.create(router);
     // this.server.use('/api', router);
   }
@@ -131,21 +133,16 @@ export class Server {
     // this.server.use(passport.initialize());
     // this.server.use(passport.session());
     // passportSetup(passport);
-    this.server.use(restify.CORS({
-      origins: ['https://wiki.shashki.online', 'http://localhost:4200'],   // defaults to ['*']
-      credentials: true,                 // defaults to false
-      // headers: ['x-foo']                 // sets expose-headers
-    }));
     //use logger middlware
-    this.server.use((req, res, next) => {
-      console.log(new Date(), req.method, req.url);
-      next();
-    });
+    // this.server.use((req, res, next) => {
+    //   console.log(new Date(), req.method, req.url);
+    //   next();
+    // });
 
-    this.server.on('uncaughtException', function (request, response, route, error) {
-      console.error(error.stack);
-      response.send(error);
-    });
+    this.server.use(restify.CORS({
+      origins: ['https://wiki.shashki.online', 'http://localhost:4200', 'http://localhost'],   // defaults to ['*']
+      credentials: true,                 // defaults to false
+    }));
 
     this.server.use(restify.queryParser());
     //use json form parser middlware
@@ -170,7 +167,7 @@ export class Server {
 
     //error handling
     // this.server.use(errorHandler());
-    this.server.listen(this.getHost(), this.getHost(), () => {
+    this.server.listen(this.getPort(), this.getHost(), () => {
       console.log('%s listening at %s', this.server.name, this.server.url);
     });
     this.server.on('error', (error) => {
@@ -179,13 +176,17 @@ export class Server {
     this.server.on('listening', () => {
       this.onListening();
     });
+    this.server.on('uncaughtException', function (request, response, route, error) {
+      console.error(error.stack);
+      response.send(error);
+    });
   }
 
-  getPort() {
+  getPort(): number {
     return this.normalizePort(process.env.PORT || 3000);//config.get('port');
   }
 
-  getHost() {
+  getHost(): string {
     return 'localhost';
   }
 

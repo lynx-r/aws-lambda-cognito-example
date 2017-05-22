@@ -41,17 +41,18 @@ export class BaseRoute {
    * @class BaseRoute
    * @method send
    * @param req {Request} The request object.
-   * @param resp {Response} The response object.
+   * @param res {Response} The response object.
    * @param json {String} The json to send.
    * @param next
    * @param status
    * @return void
    */
-  // protected send(req: Request, resp: Response, json: any, next: NextFunction, status: number = 200) {
-  //   resp.status(status).json(json);
-  // }
+  protected send(req, res, json: object, status: number = 200) {
+    console.log(req, res);
+    res.json(json);
+  }
 
-  // protected sendErr(req: Request, resp: Response, err: any, next: NextFunction, status: number = 500) {
-  //   resp.status(status).json(err);
-  // }
+  protected sendErr(req, res, err: object, status: number = 500) {
+    res.json(err);
+  }
 }

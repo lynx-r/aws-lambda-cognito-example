@@ -1,5 +1,6 @@
 import events = require('events');
 import * as mongoose from 'mongoose';
+import {AppConstants} from "./app-constants";
 
 export class MongoService {
 
@@ -7,7 +8,7 @@ export class MongoService {
   }
 
   connect() {
-    let uri = 'mongodb://localhost/shashki';
+    let uri = AppConstants.DB_URL;
     mongoose.connect(uri, (err) => {
       if (err) {
         console.log(err.message);

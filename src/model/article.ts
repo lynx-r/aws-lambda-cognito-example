@@ -12,8 +12,12 @@ export interface IArticle extends mongoose.Document {
   comments: Array<{body: string, user: IUser, createdAt: Date}>;
 }
 
-const getTags = tags => tags.join(',');
-const setTags = tags => tags.split(',');
+const getTags = (tags: [string]) => {
+  tags.join(',');
+};
+const setTags = (tags: string) => {
+  tags.split(',');
+};
 
 export let ArticleType = new Schema({
   title: {

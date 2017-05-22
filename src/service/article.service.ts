@@ -8,34 +8,20 @@ export class ArticleService {
     let repo = new ArticleRepository();
   }
 
-  findAll() {
+  findAll(callback) {
     let repo = new ArticleRepository();
-    return new Promise((resolve, reject) => {
-      repo.find((err: any, res: IArticle[]) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(res);
-        }
-      });
-    })
+    repo.find((err: any, res: IArticle[]) => {
+      callback(err, res);
+    });
   }
 
-  findById(_id: string) {
+  findById(_id: string, callback) {
     if (!_id) {
-      return Promise.reject(null);
+      throw 'Invalid id';
     }
 
     let repo = new ArticleRepository();
-    return new Promise((resolve, reject) => {
-      repo.findById(_id, (error, result) => {
-        if (error) {
-          reject(error);
-        } else {
-          resolve(result);
-        }
-      })
-    })
+    repo.findById(_id, callback);
   }
 
   updateArticle(article: IArticle) {
