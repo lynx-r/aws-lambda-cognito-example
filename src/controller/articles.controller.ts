@@ -1,8 +1,5 @@
 import {ArticleService} from "../service/article.service";
-import {BaseRoute} from "./route";
 import {Response} from "../model/response";
-import HTTP_STATUS_CODES from 'http-status-enum';
-import * as restify from "restify";
 import {InternalServerError, ResourceNotFoundError} from "restify";
 import {inject, injectable} from "inversify";
 import {Controller, Get, interfaces} from "inversify-restify-utils";

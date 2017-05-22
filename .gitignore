@@ -2,7 +2,5 @@
 *.iml
 node_modules
 dist
-src/**/.baseDir.js
-src/**/.baseDir.ts
 src/**/*.js
 src/**/config.json

@@ -5,15 +5,12 @@
  */
 
 import * as mongoose from 'mongoose';
-import {EnumOAuthType} from "./oauth-type.enum";
-// import mongooseUniqueValidator = require('mongoose-')
 
 const Schema = mongoose.Schema;
 
 export interface IUser extends mongoose.Document {
   name: string,
   email: string,
-  provider: EnumOAuthType,
   hashed_password?: string,
   salt?: string,
   authToken?: string,
@@ -114,81 +111,5 @@ UserSchema.pre('save', function (next) {
     next();
   }
 });
-
-/**
- * Methods
- */
-UserSchema.methods = {
-
-  /**
-   * Authenticate - check if the passwords are the same
-   *
-   * @param {String} plainText
-   * @return {Boolean}
-   * @api public
-   */
-
-  // authenticate: function (plainText) {
-  //   return this.encryptPassword(plainText) == this.hashed_password;
-  // },
-
-  /**
-   * Make salt
-   *
-   * @return {String}
-   * @api public
-   */
-
-  // makeSalt: function () {
-  //   return Math.round((new Date().valueOf() * Math.random())) + '';
-  // },
-
-  /**
-   * Encrypt password
-   *
-   * @param {String} password
-   * @return {String}
-   * @api public
-   */
-
-  // encryptPassword: function (password) {
-  //   if (!password) return '';
-  //   try {
-  //     return sha1(this.makeSalt() + password);
-  //   } catch (err) {
-  //     return '';
-  //   }
-  // },
-
-  /**
-   * Validation is not required if using OAuth
-   */
-
-  skipValidation: function () {
-    return EnumOAuthType[this.provider] != EnumOAuthType[EnumOAuthType.LOCAL];
-  }
-};
-
-/**
- * Statics
- */
-
-UserSchema.statics = {
-
-  /**
-   * Load
-   *
-   * @param {Object} options
-   * @param {Function} cb
-   * @api private
-   */
-
-  // load: function (options, cb) {
-  //   options.select = options.select || 'name';
-  //   return this.findOne(options.criteria)
-  //     .select(options.select)
-  //     .exec(cb);
-  // }
-};
 
 export let UserModel = mongoose.model<IUser>('user', UserSchema, 'users', true);

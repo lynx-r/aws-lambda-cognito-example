@@ -1,11 +1,12 @@
 import * as restify from "restify";
+import * as mongoose from "mongoose";
+import fs = require('fs');
 import events = require('events');
-import {MongoService} from "./service/mongo.service";
 import Logger = require("bunyan");
 import {AppConstants} from "./service/app-constants";
-import fs = require('fs');
 import {container} from "./inversify.config";
 import {InversifyRestifyServer} from "inversify-restify-utils";
+import {log} from "util";
 
 /**
  * The server.
@@ -60,6 +61,7 @@ export class Server {
   }
 
   start() {
+    // connect to mongodb
     this.mongoose();
 
     //configure application
@@ -70,8 +72,15 @@ export class Server {
    * Create mongoose connection
    */
   private mongoose() {
-    const mongoService = new MongoService();
-    mongoService.connect();
+    let uri = AppConstants.DB_URL;
+    mongoose.connect(uri, (err) => {
+      if (err) {
+        log(err.message);
+      }
+      else {
+        log('Connected to MongoDb');
+      }
+    });
   }
 
   /**

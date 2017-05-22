@@ -12,7 +12,7 @@
 // export { myContainer };
 import "reflect-metadata";
 import {Container} from "inversify";
-import {ArticlesController} from "./routes/articles.controller";
+import {ArticlesController} from "./controller/articles.controller";
 import {interfaces, TYPE} from "inversify-restify-utils";
 import {ArticleService} from "./service/article.service";
 import {TYPES} from "./types.const";

@@ -1,4 +1,3 @@
-import {EnumOAuthType} from "../model/oauth-type.enum";
 import {UserRepository} from "../dao/user-repository";
 import {IUser} from "../model/user";
 import * as bcrypt from "bcryptjs";
@@ -13,7 +12,6 @@ export class UserService {
       const user = <IUser>{
         name: name,
         email: email,
-        provider: EnumOAuthType.LOCAL,
         hashed_password: this.encryptPassword(password, 7)
       };
       repo.create(user, (error, result) => {
@@ -74,7 +72,6 @@ export class UserService {
     return <IUser>{
       name: user.name,
       email: user.email,
-      provider: user.provider
     };
   }
 }
