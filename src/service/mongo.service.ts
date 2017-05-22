@@ -1,7 +1,9 @@
 import events = require('events');
 import * as mongoose from 'mongoose';
 import {AppConstants} from "./app-constants";
+import {injectable} from "inversify";
 
+@injectable()
 export class MongoService {
 
   constructor() {

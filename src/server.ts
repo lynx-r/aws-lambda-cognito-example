@@ -1,14 +1,10 @@
-// import * as bodyParser from "body-parser";
-// import * as cookieParser from "cookie-parser";
 import * as restify from "restify";
 import events = require('events');
 import {MongoService} from "./service/mongo.service";
 import Logger = require("bunyan");
 import {AppConstants} from "./service/app-constants";
 import fs = require('fs');
-import {ArticlesController} from "./routes/articles.controller";
 import {container} from "./inversify.config";
-import {TYPES} from "./types.const";
 import {InversifyRestifyServer} from "inversify-restify-utils";
 
 /**
@@ -19,7 +15,6 @@ import {InversifyRestifyServer} from "inversify-restify-utils";
 export class Server {
 
   public server: restify.Server;
-  // public listener: SocketService;
   private logger: Logger;
 
   /**
@@ -43,17 +38,21 @@ export class Server {
   constructor() {
     this.logger = Logger.createLogger({
       name: AppConstants.APP_NAME,
-      streams: [{
-        type: 'rotating-file',
-        path: AppConstants.LOG_PATH,
-        period: '1d',   // daily rotation
-        count: 3        // keep 3 back copies
-      }]
+      streams: [
+        {
+          level: 'info',
+          stream: process.stdout
+        }, {
+          level: 'info',
+          type: 'rotating-file',
+          path: AppConstants.LOG_PATH,
+          period: '1d',   // daily rotation
+          count: 3        // keep 3 back copies
+        }
+      ]
     });
     //create expressjs application
     this.server = new InversifyRestifyServer(container, {
-      // certificate: fs.readFileSync(AppConstants.PATH_TO_SERVER_CERTIFICATE),
-      // key: fs.readFileSync(AppConstants.PATH_TO_SERVER_KEY),
       name: AppConstants.APP_NAME,
       version: AppConstants.APP_VERSION,
       log: this.logger,
@@ -65,43 +64,14 @@ export class Server {
 
     //configure application
     this.config();
-
-    //add routes
-    this.routes();
-
-    //add api
-    this.api();
-
-    this.listen();
-  }
-
-
-  private listen() {
-    // this.listener = new SocketService();
   }
 
   /**
-   * Create REST API routes
-   *
-   * @class Server
-   * @method api
+   * Create mongoose connection
    */
-  public api() {
-    // let router: express.Router = express.Router();
-    // IndexRoute.INSTANCE.create(router);
-    // const articleRoute = container.get<ArticlesController>(TYPES.ArticleRoute);
-    // articleRoute.create(this.server);
-    // PassportRoute.INSTANCE.create(router);
-    // this.server.use('/api', router);
-  }
-
-  /**
-   * Create router
-   *
-   * @class Server
-   * @method api
-   */
-  public routes() {
+  private mongoose() {
+    const mongoService = new MongoService();
+    mongoService.connect();
   }
 
   /**
@@ -111,40 +81,8 @@ export class Server {
    * @method config
    */
   public config() {
-    //add static paths
-    // this.server.use(express.static(path.join(__dirname, "public")));
-
-    //configure pug
-    // this.server.set("views", path.join(__dirname, "views"));
-    // this.server.set("view engine", "pug");
-
-    // Compression middleware (should be placed before express.static)
-    // this.server.use(compression({
-    //   threshold: 512
-    // }));
-
-    // this.server.use(cors({
-    //   origin: ['http://localhost:4200', 'https://wiki.shashki.online'],
-    //   optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
-    //   credentials: true
-    // }));
-
-    // this.server.use(session({
-    //   secret: 'ytunolosabe',
-    //   resave: false,
-    //   saveUninitialized: false,
-    // }));
-    // this.server.use(passport.initialize());
-    // this.server.use(passport.session());
-    // passportSetup(passport);
-    //use logger middlware
-    // this.server.use((req, res, next) => {
-    //   console.log(new Date(), req.method, req.url);
-    //   next();
-    // });
-
     this.server.use(restify.CORS({
-      origins: ['https://wiki.shashki.online', 'http://localhost:4200', 'http://localhost'],   // defaults to ['*']
+      origins: ['http://localhost:4200', 'http://localhost'],   // defaults to ['*']
       credentials: true,                 // defaults to false
     }));
 
@@ -152,25 +90,6 @@ export class Server {
     //use json form parser middlware
     this.server.use(restify.bodyParser());
 
-    // use query string parser middlware
-    // this.server.use(bodyParser.urlencoded({
-    //   extended: true
-    // }));
-
-    //use cookie parker middleware middlware
-    // this.server.use(cookieParser("SECRET_GOES_HERE321123sfdsfsdf"));
-
-    //use override middlware
-    // this.server.use(methodOverride());
-
-    //catch 404 and forward to error handler
-    // this.server.use(function (err: any, req: express.Request, res: express.Response, next: express.NextFunction) {
-    //   err.status = 404;
-    //   next(err);
-    // });
-
-    //error handling
-    // this.server.use(errorHandler());
     this.server.listen(this.getPort(), this.getHost(), () => {
       console.log('%s listening at %s', this.server.name, this.server.url);
     });
@@ -184,6 +103,9 @@ export class Server {
       console.error(error.stack);
       response.send(error);
     });
+    this.server.on('after', restify.auditLogger({
+      log: this.logger
+    }));
   }
 
   getPort(): number {
@@ -210,15 +132,9 @@ export class Server {
     return false;
   }
 
-  private mongoose() {
-    const mongoService = new MongoService();
-    mongoService.connect();
-  }
-
   /**
    * Event listener for HTTP server "error" event.
    */
-
   private onError(error) {
     if (error.syscall !== 'listen') {
       throw error;
@@ -246,7 +162,6 @@ export class Server {
   /**
    * Event listener for HTTP server "listening" event.
    */
-
   private onListening() {
     const addr = this.server.address();
     const bind = typeof addr === 'string'

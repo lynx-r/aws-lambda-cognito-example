@@ -22,19 +22,23 @@ export class ArticlesController implements interfaces.Controller {
         return res.json(new InternalServerError())
       }
       res.json(new Response(true, 'Found articles', articles));
+      next();
     });
   }
 
-  // findArticle(req, res, next) {
-  //   const id = req.params.id;
-  //   const article = ArticleService.INSTANCE.findById(id, (err, article) => {
-  //     if (err) {
-  //       console.error(err);
-  //       return res.json(new ResourceNotFoundError());
-  //     }
-  //     res.json(new Response(true, 'Found article', article));
-  //   });
-  // }
+  @Get('/:id')
+  findArticle(req, res, next) {
+    const id = req.params.id;
+    const article = this.articleService.findById(id, (err, article) => {
+      if (err) {
+        res.json(new ResourceNotFoundError());
+        next();
+        return;
+      }
+      res.json(new Response(true, 'Found article', article));
+      next();
+    });
+  }
 
   // create(server) {
   //   server.get('/articles', this.findArticles);
