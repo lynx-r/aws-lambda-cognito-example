@@ -1,0 +1,6 @@
+#!/usr/bin/env node
+"use strict";
+
+const restify = require('../dist/server');
+const server = restify.Server.bootstrap();
+server.start();
