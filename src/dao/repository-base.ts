@@ -1,4 +1,5 @@
 import * as mongoose from "mongoose";
+import {injectable, unmanaged} from "inversify";
 
 export interface IRead<T> {
   retrieve: (callback: (error: any, result: any) => void) => void;
@@ -13,11 +14,12 @@ export interface IWrite<T> {
   delete: (_id: string, callback: (error: any, result: any) => void) => void;
 }
 
+@injectable()
 export class RepositoryBase<T extends mongoose.Document> implements IRead<T>, IWrite<T> {
 
   private _model: mongoose.Model<mongoose.Document>;
 
-  constructor(schemaModel: mongoose.Model<mongoose.Document>) {
+  constructor(@unmanaged() schemaModel: mongoose.Model<mongoose.Document>) {
     this._model = schemaModel;
   }
 

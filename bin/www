@@ -3,4 +3,4 @@
 
 const restify = require('../dist/server');
 const server = restify.Server.bootstrap();
-server.start();
+server.listen();

@@ -1,17 +1,16 @@
 import {IArticle} from "../model/article";
 import {ArticleRepository} from "../dao/article-repository";
-import {injectable} from "inversify";
+import {inject, injectable} from "inversify";
+import {TYPES} from "../di/types.const";
 
 @injectable()
 export class ArticleService {
 
-  createArticle(title, content, black, rules, squareSize) {
-    let repo = new ArticleRepository();
+  constructor(@inject(TYPES.ArticleRepository) private repo: ArticleRepository) {
   }
 
   findAll(callback) {
-    let repo = new ArticleRepository();
-    repo.find((err: any, res: IArticle[]) => {
+    this.repo.find((err: any, res: IArticle[]) => {
       callback(err, res);
     });
   }
@@ -21,37 +20,7 @@ export class ArticleService {
       throw 'Invalid id';
     }
 
-    let repo = new ArticleRepository();
-    repo.findById(_id, callback);
-  }
-
-  updateArticle(article: IArticle) {
-    let repo = new ArticleRepository();
-    return new Promise((resolve, reject) => {
-      repo.update(article._id, article, (error, result) => {
-        if (error) {
-          reject(error);
-        } else {
-          resolve(article);
-        }
-      })
-    })
-  }
-
-  removeArticle(_id: string) {
-    if (!_id) {
-      return Promise.reject(null);
-    }
-    let repo = new ArticleRepository();
-    return new Promise((resolve, reject) => {
-      repo.delete(_id, (error, result) => {
-        if (error) {
-          reject(error);
-        } else {
-          resolve(result);
-        }
-      })
-    })
+    this.repo.findById(_id, callback);
   }
 
 }

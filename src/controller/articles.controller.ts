@@ -3,7 +3,7 @@ import {Response} from "../model/response";
 import {InternalServerError, ResourceNotFoundError} from "restify";
 import {inject, injectable} from "inversify";
 import {Controller, Get, interfaces} from "inversify-restify-utils";
-import {TYPES} from "../types.const";
+import {TYPES} from "../di/types.const";
 
 @Controller('/articles')
 @injectable()
@@ -37,13 +37,4 @@ export class ArticlesController implements interfaces.Controller {
     });
   }
 
-  // create(server) {
-  //   server.get('/articles', this.findArticles);
-  //   server.get('/articles/:id', this.findArticle);
-  // }
-
-  // create(router: Router) {
-  //   router.get('/articles', this.findArticles);
-  //   router.get('/articles/:slug', this.findArticle);
-  // }
 }

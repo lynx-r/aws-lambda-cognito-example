@@ -12,6 +12,8 @@
     "@types/bcryptjs": "^2.4.0",
     "@types/mongoose": "^4.7.13",
     "@types/nconf": "0.0.34",
+    "@types/passport-facebook": "^2.1.4",
+    "@types/passport-jwt": "^2.0.19",
     "@types/restify": "^4.3.2",
     "@types/uuid": "^2.0.29",
     "bcryptjs": "^2.4.3",
@@ -21,6 +23,8 @@
     "mongoose": "^4.10.1",
     "nconf": "^0.8.4",
     "nodemon": "^1.11.0",
+    "passport-facebook": "^2.1.1",
+    "passport-jwt": "^2.2.1",
     "reflect-metadata": "^0.1.10",
     "restify": "^4.3.0",
     "uuid": "^3.0.1"

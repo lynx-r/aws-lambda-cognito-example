@@ -4,7 +4,7 @@ import fs = require('fs');
 import events = require('events');
 import Logger = require("bunyan");
 import {AppConstants} from "./service/app-constants";
-import {container} from "./inversify.config";
+import {container} from "./di/inversify.config";
 import {nconf} from "./config/config";
 import {InversifyRestifyServer} from "inversify-restify-utils";
 import {log} from "util";
@@ -25,7 +25,7 @@ export class Server {
    * @class Server
    * @method bootstrap
    * @static
-   * @return {ng.auto.IInjectorService} Returns the newly created injector for this server.
+   * @return {Server} Returns the newly created injector for this server.
    */
   public static bootstrap(): Server {
     return new Server();
@@ -61,7 +61,10 @@ export class Server {
     }).build();
   }
 
-  start() {
+  /**
+   * Configure and start listening
+   */
+  listen() {
     // connect to mongodb
     this.mongoose();
 
@@ -77,8 +80,7 @@ export class Server {
     mongoose.connect(uri, (err) => {
       if (err) {
         log(err.message);
-      }
-      else {
+      } else {
         log('Connected to MongoDb');
       }
     });
@@ -91,42 +93,58 @@ export class Server {
    * @method config
    */
   public config() {
+    // configure cors
     this.server.use(restify.CORS({
       origins: nconf.get("server:origins"),   // defaults to ['*']
       credentials: true,                 // defaults to false
     }));
 
+    // to get query params in req.query
     this.server.use(restify.queryParser());
-    //use json form parser middlware
+    // to get passed json in req.body
     this.server.use(restify.bodyParser());
 
+    // start listening
     this.server.listen(this.getPort(), this.getHost(), () => {
       console.log('%s listening at %s', this.server.name, this.server.url);
     });
+    // error handler
     this.server.on('error', (error) => {
       this.onError(error);
     });
-    this.server.on('listening', () => {
-      this.onListening();
-    });
+    // process exceptions
     this.server.on('uncaughtException', function (request, response, route, error) {
       console.error(error.stack);
       response.send(error);
     });
+    // audit logger
     this.server.on('after', restify.auditLogger({
       log: this.logger
     }));
   }
 
+  /**
+   * get port from env or config.json
+   * @returns {number}
+   */
   getPort(): number {
-    return this.normalizePort(process.env.PORT || nconf.get("server:port"));
+    return this.normalizePort(process.env.PORT || nconf.get("server:port") || 3000);
   }
 
+  /**
+   * get host from env or config.json
+   * @returns {string}
+   */
   getHost(): string {
-    return nconf.get("server:host") || 'localhost';
+    return process.env.HOST || nconf.get("server:host") || 'localhost';
   }
 
-  normalizePort(val) {
+  /**
+   * validate port
+   * @param val
+   * @returns {number}
+   */
+  normalizePort(val): number {
     const port = parseInt(val, 10);
 
     if (isNaN(port)) {
@@ -139,7 +157,7 @@ export class Server {
       return port;
     }
 
-    return false;
+    throw 'Invalid port';
   }
 
   /**
@@ -167,17 +185,6 @@ export class Server {
       default:
         throw error;
     }
-  }
-
-  /**
-   * Event listener for HTTP server "listening" event.
-   */
-  private onListening() {
-    const addr = this.server.address();
-    const bind = typeof addr === 'string'
-      ? 'pipe ' + addr
-      : 'port ' + addr.port;
-    console.log('Listening on ' + bind);
   }
 
 }
