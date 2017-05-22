@@ -1,5 +1,5 @@
 const TYPES = {
-  ru64rules: Symbol('ru64rules')
+  ArticleService: Symbol('ArticleService')
 };
 
 export {TYPES}

@@ -15,8 +15,11 @@
     "@types/uuid": "^2.0.29",
     "bcryptjs": "^2.4.3",
     "http-status-enum": "^1.0.2",
+    "inversify": "^4.1.0",
+    "inversify-restify-utils": "^3.2.0",
     "mongoose": "^4.10.1",
     "nodemon": "^1.11.0",
+    "reflect-metadata": "^0.1.10",
     "restify": "^4.3.0",
     "uuid": "^3.0.1"
   },

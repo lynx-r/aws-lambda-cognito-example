@@ -6,7 +6,10 @@ import {MongoService} from "./service/mongo.service";
 import Logger = require("bunyan");
 import {AppConstants} from "./service/app-constants";
 import fs = require('fs');
-import {ArticleRoute} from "./routes/articles.route";
+import {ArticlesController} from "./routes/articles.controller";
+import {container} from "./inversify.config";
+import {TYPES} from "./types.const";
+import {InversifyRestifyServer} from "inversify-restify-utils";
 
 /**
  * The server.
@@ -48,13 +51,13 @@ export class Server {
       }]
     });
     //create expressjs application
-    this.server = restify.createServer({
+    this.server = new InversifyRestifyServer(container, {
       // certificate: fs.readFileSync(AppConstants.PATH_TO_SERVER_CERTIFICATE),
       // key: fs.readFileSync(AppConstants.PATH_TO_SERVER_KEY),
       name: AppConstants.APP_NAME,
       version: AppConstants.APP_VERSION,
       log: this.logger,
-    });
+    }).build();
   }
 
   start() {
@@ -86,7 +89,8 @@ export class Server {
   public api() {
     // let router: express.Router = express.Router();
     // IndexRoute.INSTANCE.create(router);
-    ArticleRoute.INSTANCE.create(this.server);
+    // const articleRoute = container.get<ArticlesController>(TYPES.ArticleRoute);
+    // articleRoute.create(this.server);
     // PassportRoute.INSTANCE.create(router);
     // this.server.use('/api', router);
   }

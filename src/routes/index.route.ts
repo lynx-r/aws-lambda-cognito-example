@@ -1,6 +1,6 @@
 import { BaseRoute } from "./route";
 import {ArticleService} from "../service/article.service";
-import {ArticleRoute} from "./articles.route";
+import {ArticlesController} from "./articles.controller";
 
 
 /**

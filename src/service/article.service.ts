@@ -1,8 +1,9 @@
 import {IArticle} from "../model/article";
 import {ArticleRepository} from "../dao/article-repository";
-export class ArticleService {
+import {injectable} from "inversify";
 
-  static INSTANCE: ArticleService = new ArticleService();
+@injectable()
+export class ArticleService {
 
   createArticle(title, content, black, rules, squareSize) {
     let repo = new ArticleRepository();
