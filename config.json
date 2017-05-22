@@ -1,0 +1,14 @@
+{
+  "server": {
+    "port": 3000,
+    "host": "localhost",
+    "api_version": "1.0.0",
+    "origins": ["http://localhost:4200", "http://localhost"]
+  },
+  "database": {
+    "uri": "mongodb://localhost/mysandbox"
+  },
+  "logger": {
+    "path": "/Users/aleksey/.mysandbox/logs/server.log"
+  }
+}

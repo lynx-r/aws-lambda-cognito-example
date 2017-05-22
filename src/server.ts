@@ -5,6 +5,7 @@ import events = require('events');
 import Logger = require("bunyan");
 import {AppConstants} from "./service/app-constants";
 import {container} from "./inversify.config";
+import {nconf} from "./config/config";
 import {InversifyRestifyServer} from "inversify-restify-utils";
 import {log} from "util";
 
@@ -46,7 +47,7 @@ export class Server {
         }, {
           level: 'info',
           type: 'rotating-file',
-          path: AppConstants.LOG_PATH,
+          path: nconf.get("logger:path"),
           period: '1d',   // daily rotation
           count: 3        // keep 3 back copies
         }
@@ -55,7 +56,7 @@ export class Server {
     //create expressjs application
     this.server = new InversifyRestifyServer(container, {
       name: AppConstants.APP_NAME,
-      version: AppConstants.APP_VERSION,
+      version: nconf.get("server:api_version"),
       log: this.logger,
     }).build();
   }
@@ -72,7 +73,7 @@ export class Server {
    * Create mongoose connection
    */
   private mongoose() {
-    let uri = AppConstants.DB_URL;
+    let uri = nconf.get('database:uri');
     mongoose.connect(uri, (err) => {
       if (err) {
         log(err.message);
@@ -91,7 +92,7 @@ export class Server {
    */
   public config() {
     this.server.use(restify.CORS({
-      origins: ['http://localhost:4200', 'http://localhost'],   // defaults to ['*']
+      origins: nconf.get("server:origins"),   // defaults to ['*']
       credentials: true,                 // defaults to false
     }));
 
@@ -118,11 +119,11 @@ export class Server {
   }
 
   getPort(): number {
-    return this.normalizePort(process.env.PORT || 3000);//config.get('port');
+    return this.normalizePort(process.env.PORT || nconf.get("server:port"));
   }
 
   getHost(): string {
-    return 'localhost';
+    return nconf.get("server:host") || 'localhost';
   }
 
   normalizePort(val) {
