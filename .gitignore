@@ -3,4 +3,4 @@
 node_modules
 dist
 src/**/*.js
-src/**/config.json
+config.json

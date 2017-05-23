@@ -8,6 +8,8 @@ import {container} from "./di/inversify.config";
 import {nconf} from "./config/config";
 import {InversifyRestifyServer} from "inversify-restify-utils";
 import {log} from "util";
+import setupPassport = require("./config/passport");
+import * as passport from "passport";
 
 /**
  * The server.
@@ -53,11 +55,20 @@ export class Server {
         }
       ]
     });
+    let customHeaderName = "custom-header-name";
+    let customHeaderValue = "custom-header-value";
+
     //create expressjs application
     this.server = new InversifyRestifyServer(container, {
       name: AppConstants.APP_NAME,
       version: nconf.get("server:api_version"),
       log: this.logger,
+      formatters: {
+        "application/json": function formatFoo(req: restify.Request, res: restify.Response, body: any, cb: any) {
+          res.setHeader(customHeaderName, customHeaderValue);
+          return cb();
+        }
+      }
     }).build();
   }
 
@@ -96,13 +107,21 @@ export class Server {
     // configure cors
     this.server.use(restify.CORS({
       origins: nconf.get("server:origins"),   // defaults to ['*']
-      credentials: true,                 // defaults to false
+      credentials: false,                 // defaults to false
     }));
 
     // to get query params in req.query
-    this.server.use(restify.queryParser());
+    // this.server.use(restify.queryParser());
+    this.server.use(restify.acceptParser(this.server.acceptable));
     // to get passed json in req.body
     this.server.use(restify.bodyParser());
+
+    setupPassport(passport);
+
+    this.server.post('/test', (req, res, next) => {
+      console.log(req.body);
+      next();
+    });
 
     // start listening
     this.server.listen(this.getPort(), this.getHost(), () => {

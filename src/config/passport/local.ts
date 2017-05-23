@@ -13,21 +13,19 @@ export class LocalStrategy {
     passport.use(new Strategy({
         usernameField: 'email',
         passwordField: 'password'
-      },
-      (email, password, done) => {
+      }, (email, password, done) => {
         this.userService.findOne({email}, (err, user) => {
           if (err) {
             return done(err);
           }
 
           if (!user || !user.checkPassword(password)) {
-            return done(null, false, {message: 'Нет такого пользователя или пароль неверен.'});
+            return done(null, false, {message: 'Invalid login credentials'});
           }
           return done(null, user);
         })
       })
     );
   }
-
 
 }
