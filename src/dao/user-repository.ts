@@ -1,8 +1,9 @@
 import {RepositoryBase} from "./repository-base";
 import {IUser, UserModel} from "../model/User";
-import {injectable} from "inversify";
+import {provide} from "../ioc/ioc";
+import {TYPES} from "../constant/types";
 
-@injectable()
+@provide(TYPES.UserRepository)
 export class UserRepository extends RepositoryBase<IUser> {
   constructor() {
     super(UserModel);

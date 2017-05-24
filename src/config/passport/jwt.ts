@@ -1,9 +1,11 @@
 import {ExtractJwt, Strategy} from "passport-jwt";
 import {nconf} from "../config";
-import {inject, injectable} from "inversify";
-import {TYPES} from "../../di/types.const";
+import {inject} from "inversify";
+import {TYPES} from "../../constant/types";
 import {UserService} from "../../service/user.service";
-@injectable()
+import {provide} from "../../ioc/ioc";
+
+@provide(TYPES.JwtStrategy)
 export class JwtStrategy {
 
   constructor(@inject(TYPES.UserService) private userService: UserService) {

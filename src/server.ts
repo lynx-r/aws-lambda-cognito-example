@@ -3,13 +3,19 @@ import * as mongoose from "mongoose";
 import fs = require('fs');
 import events = require('events');
 import Logger = require("bunyan");
-import {AppConstants} from "./service/app-constants";
-import {container} from "./di/inversify.config";
+import {AppConstants} from "./constant/app-constants";
 import {nconf} from "./config/config";
 import {InversifyRestifyServer} from "inversify-restify-utils";
 import {log} from "util";
 import setupPassport = require("./config/passport");
-import * as passport from "passport";
+import {Response} from "./model/response";
+import helmet = require("helmet");
+
+import {bindDependencies, container} from "./ioc/ioc";
+// load all injectable entities.
+// the @provide() annotation will then automatically register them.
+import './ioc/loader';
+import {TYPES} from "./constant/types";
 
 /**
  * The server.
@@ -18,20 +24,8 @@ import * as passport from "passport";
  */
 export class Server {
 
-  public server: restify.Server;
+  public app: restify.Server;
   private logger: Logger;
-
-  /**
-   * Bootstrap the application.
-   *
-   * @class Server
-   * @method bootstrap
-   * @static
-   * @return {Server} Returns the newly created injector for this server.
-   */
-  public static bootstrap(): Server {
-    return new Server();
-  }
 
   /**
    * Constructor.
@@ -40,6 +34,10 @@ export class Server {
    * @constructor
    */
   constructor() {
+  }
+
+  bootstrap() {
+    this.mongoose();
     this.logger = Logger.createLogger({
       name: AppConstants.APP_NAME,
       streams: [
@@ -55,32 +53,15 @@ export class Server {
         }
       ]
     });
-    let customHeaderName = "custom-header-name";
-    let customHeaderValue = "custom-header-value";
 
-    //create expressjs application
-    this.server = new InversifyRestifyServer(container, {
+    //create restify application
+    this.app = new InversifyRestifyServer(container, {
       name: AppConstants.APP_NAME,
       version: nconf.get("server:api_version"),
-      log: this.logger,
-      formatters: {
-        "application/json": function formatFoo(req: restify.Request, res: restify.Response, body: any, cb: any) {
-          res.setHeader(customHeaderName, customHeaderValue);
-          return cb();
-        }
-      }
+      log: this.logger
+    }).setConfig((app) => {
+      this.config(app);
     }).build();
-  }
-
-  /**
-   * Configure and start listening
-   */
-  listen() {
-    // connect to mongodb
-    this.mongoose();
-
-    //configure application
-    this.config();
   }
 
   /**
@@ -103,43 +84,47 @@ export class Server {
    * @class Server
    * @method config
    */
-  public config() {
+  public config(app) {
     // configure cors
-    this.server.use(restify.CORS({
+    app.use(restify.CORS({
       origins: nconf.get("server:origins"),   // defaults to ['*']
       credentials: false,                 // defaults to false
     }));
 
     // to get query params in req.query
     // this.server.use(restify.queryParser());
-    this.server.use(restify.acceptParser(this.server.acceptable));
+    app.use(restify.acceptParser(app.acceptable));
     // to get passed json in req.body
-    this.server.use(restify.bodyParser());
+    app.use(restify.bodyParser());
 
-    setupPassport(passport);
+    let setupPassportFunc = bindDependencies(setupPassport, [TYPES.JwtStrategy, TYPES.LocalStrategy])
+    setupPassportFunc();
 
-    this.server.post('/test', (req, res, next) => {
+    app.post('/test', (req, res, next) => {
       console.log(req.body);
+      res.json(new Response(true, 'ok'));
       next();
     });
 
     // start listening
-    this.server.listen(this.getPort(), this.getHost(), () => {
-      console.log('%s listening at %s', this.server.name, this.server.url);
+    app.listen(this.getPort(), this.getHost(), () => {
+      log(`${app.name} listening at ${app.url}`);
     });
     // error handler
-    this.server.on('error', (error) => {
+    app.on('error', (error) => {
       this.onError(error);
     });
     // process exceptions
-    this.server.on('uncaughtException', function (request, response, route, error) {
+    app.on('uncaughtException', function (request, response, route, error) {
       console.error(error.stack);
       response.send(error);
     });
     // audit logger
-    this.server.on('after', restify.auditLogger({
+    app.on('after', restify.auditLogger({
       log: this.logger
     }));
+
+    app.use(helmet());
   }
 
   /**
@@ -147,7 +132,7 @@ export class Server {
    * @returns {number}
    */
   getPort(): number {
-    return this.normalizePort(process.env.PORT || nconf.get("server:port") || 3000);
+    return Server.normalizePort(process.env.PORT || nconf.get("server:port") || 3000);
   }
 
   /**
@@ -163,7 +148,7 @@ export class Server {
    * @param val
    * @returns {number}
    */
-  normalizePort(val): number {
+  static normalizePort(val): number {
     const port = parseInt(val, 10);
 
     if (isNaN(port)) {

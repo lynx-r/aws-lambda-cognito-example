@@ -1,17 +1,18 @@
 import {UserService} from "../service/user.service";
 import {Response} from "../model/response";
-import {InternalServerError, ResourceNotFoundError} from "restify";
-import {inject, injectable} from "inversify";
-import {Controller, Get, interfaces, Post} from "inversify-restify-utils";
-import {TYPES} from "../di/types.const";
+import {inject} from "inversify";
+import {Controller, Get, interfaces, Post, TYPE} from "inversify-restify-utils";
+import {TYPES} from "../constant/types";
 import {nconf} from "../config/config";
 import jwt = require("jsonwebtoken");
 import * as passport from "passport";
 import * as restify from 'restify';
+import TAGS from "../constant/tags";
+import {provideNamed} from "../ioc/ioc";
 
 @Controller('/users')
-@injectable()
-export class UsersController implements interfaces.Controller {
+@provideNamed(TYPE.Controller, TAGS.UserController)
+export class UserController implements interfaces.Controller {
 
   private passport = new passport.Passport();
 
@@ -20,14 +21,15 @@ export class UsersController implements interfaces.Controller {
   @Post('/')
   createUser(req: restify.Request, res: restify.Response, next: restify.Next) {
     console.log(req.body);
-    this.userService.createUser(req.body, (err, user) => {
-      if (err) {
-        console.log(err);
-        return res.json(new InternalServerError())
-      }
-      res.json(new Response(true, 'User was created', user));
-      next();
-    });
+    res.json(new Response(true, req.body));
+    // this.userService.createUser(req.body, (err, user) => {
+    //   if (err) {
+    //     console.log(err);
+    //     return res.json(new InternalServerError())
+    //   }
+    //   res.json(new Response(true, 'User was created', user));
+    //   next();
+    // });
   }
 
   @Post('/login')

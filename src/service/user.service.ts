@@ -1,9 +1,10 @@
-import {inject, injectable} from "inversify";
+import {inject} from "inversify";
 import {UserRepository} from "../dao/user-repository";
-import {TYPES} from "../di/types.const";
+import {TYPES} from "../constant/types";
 import {IUser} from "../model/user";
+import {provide} from "../ioc/ioc";
 
-@injectable()
+@provide(TYPES.UserService)
 export class UserService {
 
   constructor(@inject(TYPES.UserRepository) private repo: UserRepository) {

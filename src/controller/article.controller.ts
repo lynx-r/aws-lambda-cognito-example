@@ -1,13 +1,15 @@
 import {ArticleService} from "../service/article.service";
 import {Response} from "../model/response";
 import {InternalServerError, ResourceNotFoundError} from "restify";
-import {inject, injectable} from "inversify";
-import {Controller, Get, interfaces} from "inversify-restify-utils";
-import {TYPES} from "../di/types.const";
+import {inject} from "inversify";
+import {Controller, Get, interfaces, TYPE} from "inversify-restify-utils";
+import {TYPES} from "../constant/types";
+import {provideNamed} from "../ioc/ioc";
+import TAGS from "../constant/tags";
 
 @Controller('/articles')
-@injectable()
-export class ArticlesController implements interfaces.Controller {
+@provideNamed(TYPE.Controller, TAGS.ArticleController)
+export class ArticleController implements interfaces.Controller {
 
   constructor(@inject(TYPES.ArticleService) private articleService: ArticleService) {}
 

@@ -1,9 +1,10 @@
 import {Strategy} from "passport-local";
-import {inject, injectable} from "inversify";
-import {TYPES} from "../../di/types.const";
+import {inject} from "inversify";
+import {TYPES} from "../../constant/types";
 import {UserService} from "../../service/user.service";
+import {provide} from "../../ioc/ioc";
 
-@injectable()
+@provide(TYPES.LocalStrategy)
 export class LocalStrategy {
 
   constructor(@inject(TYPES.UserService) private userService: UserService) {

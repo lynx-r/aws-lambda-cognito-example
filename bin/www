@@ -2,5 +2,5 @@
 "use strict";
 
 const restify = require('../dist/server');
-const server = restify.Server.bootstrap();
-server.listen();
+const server = new restify.Server();
+server.bootstrap();
