@@ -12,7 +12,7 @@ const Schema = mongoose.Schema;
 interface IUser extends mongoose.Document {
   displayName: string,
   email: string,
-  hashed_password?: string,
+  passwordHash?: string,
 }
 
 /**
@@ -25,7 +25,7 @@ let UserSchema = new Schema({
     required: 'Укажите e-mail',
     unique: 'Такой e-mail уже существует'
   },
-  hashed_password: {type: String, default: ''},
+  passwordHash: {type: String, default: ''},
 }, {
   timestamps: true
 });

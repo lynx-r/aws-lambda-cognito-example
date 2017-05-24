@@ -2,10 +2,10 @@ import {Strategy} from "passport-local";
 import {inject} from "inversify";
 import {TYPES} from "../../constant/types";
 import {UserService} from "../../service/user.service";
-import {provide} from "../../ioc/ioc";
+import {provide, provideSingleton} from "../../ioc/ioc";
 import {Passport} from "passport";
 
-@provide(TYPES.LocalStrategy)
+@provideSingleton(TYPES.LocalStrategy)
 export class LocalStrategy {
 
   constructor(@inject(TYPES.UserService) private userService: UserService) {
@@ -14,11 +14,13 @@ export class LocalStrategy {
   getStrategy() {
     return new Strategy({
       usernameField: 'email'
-    },function(email, password, done) {
+    }, (email, password, done) => {
       this.userService.findOne({email}, (err, user) => {
         if (err) {
           return done(err);
         }
+
+        console.log(user);
 
         if (!user || !user.checkPassword(password)) {
           return done(null, false, {message: 'Invalid login credentials'});

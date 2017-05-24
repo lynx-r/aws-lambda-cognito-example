@@ -17,7 +17,7 @@ import {bindDependencies, bindDependenciesWithUnused, container} from "./ioc/ioc
 // the @provide() annotation will then automatically register them.
 import './ioc/loader';
 import {TYPES} from "./constant/types";
-import {PassportService} from "./service/passport.service";
+import {UserService} from "./service/user.service";
 
 /**
  * The server.
@@ -28,7 +28,7 @@ export class Server {
 
   public app: restify.Server;
   private logger: Logger;
-  private passport: passport.Passport;
+  private passport: number;
 
   /**
    * Constructor.
@@ -57,9 +57,6 @@ export class Server {
       ]
     });
 
-    let passportService = container.get<PassportService>(TYPES.PassportService);
-    this.passport = passportService.passport;
-    this.configPassport();
     //create restify application
     this.app = new InversifyRestifyServer(container, {
       name: AppConstants.APP_NAME,
@@ -67,7 +64,7 @@ export class Server {
       log: this.logger
     }).setConfig((app) => {
       this.config(app);
-      console.log('1',passportService.passport._strategies);
+      this.configPassport(app);
     }).build();
   }
 
@@ -104,11 +101,6 @@ export class Server {
     // to get passed json in req.body
     app.use(restify.bodyParser());
 
-    console.log(this.passport._strategies);
-    // configure passport with strategies
-    app.use(this.passport.initialize());
-    app.use(this.passport.session());
-
     // start listening
     app.listen(this.getPort(), this.getHost(), () => {
       log(`${app.name} listening at ${app.url}`);
@@ -130,14 +122,18 @@ export class Server {
     app.use(helmet());
   }
 
-  private configPassport() {
+  private configPassport(app) {
     let setupPassportFunc = bindDependencies(
       setupPassport,
       [TYPES.JwtStrategy, TYPES.LocalStrategy]);
+    let passportService = container.get<UserService>(TYPES.UserService);
+    // setup strategies
     let strategies = setupPassportFunc();
     strategies.forEach((strategy) => {
-      this.passport.use(strategy);
+      passportService.passport.use(strategy);
     });
+    app.use(passport.initialize());
+    app.use(passport.session());
   }
 
   /**

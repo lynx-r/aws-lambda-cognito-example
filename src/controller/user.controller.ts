@@ -10,14 +10,12 @@ import * as restify from 'restify';
 import TAGS from "../constant/tags";
 import {provideNamed} from "../ioc/ioc";
 import {InternalServerError} from "restify";
-import {PassportService} from "../service/passport.service";
 
 @Controller('/users')
 @provideNamed(TYPE.Controller, TAGS.UserController)
 export class UserController implements interfaces.Controller {
 
-  constructor(@inject(TYPES.PassportService) private passportService: PassportService,
-              @inject(TYPES.UserService) private userService: UserService) {
+  constructor(@inject(TYPES.UserService) private userService: UserService) {
   }
 
   @Post('/')
@@ -34,11 +32,11 @@ export class UserController implements interfaces.Controller {
 
   @Post('/login')
   login(req, res, next) {
-    console.log(this.passportService.passport._strategies);
-    this.passportService.passport.authenticate('local', function (err, user) {
+    this.userService.passport.authenticate('local', function (err, user) {
       if (user == false) {
         res.json(new Response(false, "Login failed"));
       } else {
+        console.log(err);
         //--payload - информация которую мы храним в токене и можем из него получать
         const payload = {
           id: user._id,

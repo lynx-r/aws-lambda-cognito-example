@@ -2,10 +2,13 @@ import {inject} from "inversify";
 import {UserRepository} from "../dao/user-repository";
 import {TYPES} from "../constant/types";
 import {IUser} from "../model/user";
-import {provide} from "../ioc/ioc";
+import {provideSingleton} from "../ioc/ioc";
+import * as passport from "passport";
 
-@provide(TYPES.UserService)
+@provideSingleton(TYPES.UserService)
 export class UserService {
+
+  passport: passport.Passport = new passport.Passport();
 
   constructor(@inject(TYPES.UserRepository) private repo: UserRepository) {
   }
@@ -28,6 +31,7 @@ export class UserService {
 
   safeUser(user: IUser) {
     return <IUser>{
+      _id: user._id,
       displayName: user.displayName,
       email: user.email,
     };

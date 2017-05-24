@@ -2,9 +2,9 @@ import {IArticle} from "../model/article";
 import {ArticleRepository} from "../dao/article-repository";
 import {inject} from "inversify";
 import {TYPES} from "../constant/types";
-import {provide} from "../ioc/ioc";
+import {provideSingleton} from "../ioc/ioc";
 
-@provide(TYPES.ArticleService)
+@provideSingleton(TYPES.ArticleService)
 export class ArticleService {
 
   constructor(@inject(TYPES.ArticleRepository) private repo: ArticleRepository) {

@@ -14,8 +14,15 @@ if (process.env.NODE_ENV === 'development') {
 let provide = makeProvideDecorator(container);
 let fluentProvider = makeFluentProvideDecorator(container);
 
+let provideSingleton = function(identifier) {
+  return fluentProvider(identifier)
+    .inSingletonScope()
+    .done();
+};
+
 let provideNamed = function (identifier, name) {
   return fluentProvider(identifier)
+    .inSingletonScope()
     .whenTargetNamed(name)
     .done();
 };
@@ -34,4 +41,5 @@ let bindDependenciesWithUnused = function (func, args, dependencies) {
   return func.bind(func, ...args, ...injections);
 };
 
-export {container, autoProvide, provide, provideNamed, inject, bindDependencies, bindDependenciesWithUnused};
+export {container, autoProvide, provide, provideNamed, provideSingleton,
+  inject, bindDependencies, bindDependenciesWithUnused};
