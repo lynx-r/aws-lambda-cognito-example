@@ -10,12 +10,14 @@ import {log} from "util";
 import setupPassport = require("./config/passport");
 import {Response} from "./model/response";
 import helmet = require("helmet");
+import passport = require("passport");
 
-import {bindDependencies, container} from "./ioc/ioc";
+import {bindDependencies, bindDependenciesWithUnused, container} from "./ioc/ioc";
 // load all injectable entities.
 // the @provide() annotation will then automatically register them.
 import './ioc/loader';
 import {TYPES} from "./constant/types";
+import {PassportService} from "./service/passport.service";
 
 /**
  * The server.
@@ -26,6 +28,7 @@ export class Server {
 
   public app: restify.Server;
   private logger: Logger;
+  private passport: passport.Passport;
 
   /**
    * Constructor.
@@ -54,6 +57,9 @@ export class Server {
       ]
     });
 
+    let passportService = container.get<PassportService>(TYPES.PassportService);
+    this.passport = passportService.passport;
+    this.configPassport();
     //create restify application
     this.app = new InversifyRestifyServer(container, {
       name: AppConstants.APP_NAME,
@@ -61,6 +67,7 @@ export class Server {
       log: this.logger
     }).setConfig((app) => {
       this.config(app);
+      console.log('1',passportService.passport._strategies);
     }).build();
   }
 
@@ -97,14 +104,10 @@ export class Server {
     // to get passed json in req.body
     app.use(restify.bodyParser());
 
-    let setupPassportFunc = bindDependencies(setupPassport, [TYPES.JwtStrategy, TYPES.LocalStrategy])
-    setupPassportFunc();
-
-    app.post('/test', (req, res, next) => {
-      console.log(req.body);
-      res.json(new Response(true, 'ok'));
-      next();
-    });
+    console.log(this.passport._strategies);
+    // configure passport with strategies
+    app.use(this.passport.initialize());
+    app.use(this.passport.session());
 
     // start listening
     app.listen(this.getPort(), this.getHost(), () => {
@@ -125,6 +128,16 @@ export class Server {
     }));
 
     app.use(helmet());
+  }
+
+  private configPassport() {
+    let setupPassportFunc = bindDependencies(
+      setupPassport,
+      [TYPES.JwtStrategy, TYPES.LocalStrategy]);
+    let strategies = setupPassportFunc();
+    strategies.forEach((strategy) => {
+      this.passport.use(strategy);
+    });
   }
 
   /**

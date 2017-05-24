@@ -1,6 +1,6 @@
 import {UserService} from "../service/user.service";
 import {Response} from "../model/response";
-import {inject} from "inversify";
+import {inject, unmanaged} from "inversify";
 import {Controller, Get, interfaces, Post, TYPE} from "inversify-restify-utils";
 import {TYPES} from "../constant/types";
 import {nconf} from "../config/config";
@@ -9,32 +9,33 @@ import * as passport from "passport";
 import * as restify from 'restify';
 import TAGS from "../constant/tags";
 import {provideNamed} from "../ioc/ioc";
+import {InternalServerError} from "restify";
+import {PassportService} from "../service/passport.service";
 
 @Controller('/users')
 @provideNamed(TYPE.Controller, TAGS.UserController)
 export class UserController implements interfaces.Controller {
 
-  private passport = new passport.Passport();
-
-  constructor(@inject(TYPES.UserService) private userService: UserService) {}
+  constructor(@inject(TYPES.PassportService) private passportService: PassportService,
+              @inject(TYPES.UserService) private userService: UserService) {
+  }
 
   @Post('/')
   createUser(req: restify.Request, res: restify.Response, next: restify.Next) {
-    console.log(req.body);
-    res.json(new Response(true, req.body));
-    // this.userService.createUser(req.body, (err, user) => {
-    //   if (err) {
-    //     console.log(err);
-    //     return res.json(new InternalServerError())
-    //   }
-    //   res.json(new Response(true, 'User was created', user));
-    //   next();
-    // });
+    this.userService.createUser(req.body, (err, user) => {
+      if (err) {
+        console.error(err);
+        return res.json(new InternalServerError())
+      }
+      res.json(new Response(true, 'User was created', user));
+      next();
+    });
   }
 
   @Post('/login')
-  login(req, res,next) {
-    this.passport.authenticate('local', function (err, user) {
+  login(req, res, next) {
+    console.log(this.passportService.passport._strategies);
+    this.passportService.passport.authenticate('local', function (err, user) {
       if (user == false) {
         res.json(new Response(false, "Login failed"));
       } else {
@@ -44,7 +45,7 @@ export class UserController implements interfaces.Controller {
           displayName: user.displayName,
           email: user.email
         };
-        const token = jwt.sign(payload, nconf.get('jwtSecret'), { expiresIn: 7200 }); //здесь создается JWT
+        const token = jwt.sign(payload, nconf.get('jwtSecret'), {expiresIn: 7200}); //здесь создается JWT
 
         res.json(new Response(true, 'User logged in', {userId: user._id, token: token}));
       }

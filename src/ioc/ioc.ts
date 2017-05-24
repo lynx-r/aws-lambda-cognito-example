@@ -1,13 +1,14 @@
 import 'reflect-metadata';
-import {Container, inject} from 'inversify';
+import {Container, inject, interfaces} from 'inversify';
 import {autoProvide, makeProvideDecorator, makeFluentProvideDecorator} from 'inversify-binding-decorators';
 import {makeLoggerMiddleware} from 'inversify-logger-middleware';
+import {UserController} from "../controller/user.controller";
 
 let container = new Container();
 
 if (process.env.NODE_ENV === 'development') {
-  let logger = makeLoggerMiddleware();
-  container.applyMiddleware(logger);
+  // let logger = makeLoggerMiddleware();
+  // container.applyMiddleware(logger);
 }
 
 let provide = makeProvideDecorator(container);
@@ -33,4 +34,4 @@ let bindDependenciesWithUnused = function (func, args, dependencies) {
   return func.bind(func, ...args, ...injections);
 };
 
-export {container, autoProvide, provide, provideNamed, inject, bindDependencies};
+export {container, autoProvide, provide, provideNamed, inject, bindDependencies, bindDependenciesWithUnused};

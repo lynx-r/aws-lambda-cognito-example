@@ -6,3 +6,4 @@ import '../config/passport/local';
 import '../config/passport/jwt';
 import '../service/user.service';
 import '../service/article.service';
+import '../service/passport.service';
