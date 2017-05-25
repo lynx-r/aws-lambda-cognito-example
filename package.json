@@ -30,6 +30,8 @@
     "inversify-restify-utils": "^3.2.0",
     "jsonwebtoken": "^7.4.1",
     "mongoose": "^4.10.1",
+    "mongoose-type-email": "^1.0.5",
+    "mongoose-unique-validator": "^1.0.5",
     "nconf": "^0.8.4",
     "nodemon": "^1.11.0",
     "passport": "^0.3.2",

@@ -18,7 +18,7 @@ export class ArticleController implements interfaces.Controller {
     this.articleService.findAll((err, articles) => {
       if (err) {
         console.log(err);
-        return res.json(new InternalServerError())
+        return res.json(new InternalServerError(err))
       }
       res.json(new Response(true, 'Found articles', articles));
       next();

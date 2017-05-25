@@ -6,6 +6,8 @@
 
 import * as mongoose from 'mongoose';
 import * as bcrypt from 'bcryptjs';
+import * as uniqueValidator from "mongoose-unique-validator";
+import Email = require("mongoose-type-email");
 
 const Schema = mongoose.Schema;
 
@@ -21,7 +23,7 @@ interface IUser extends mongoose.Document {
 let UserSchema = new Schema({
   displayName: {type: String, default: ''},
   email: {
-    type: String,
+    type: Email,
     required: 'Укажите e-mail',
     unique: 'Такой e-mail уже существует'
   },
@@ -30,11 +32,13 @@ let UserSchema = new Schema({
   timestamps: true
 });
 
+UserSchema.plugin(uniqueValidator);
+
 UserSchema.virtual('password')
   .set(function (password) {
     this._plainPassword = password;
     if (password) {
-      const salt = bcrypt.genSaltSync(10);
+      const salt = bcrypt.genSaltSync();
       this.passwordHash = bcrypt.hashSync(password, salt);
     } else {
       this.passwordHash = undefined;
