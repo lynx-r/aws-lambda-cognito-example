@@ -1,4 +1,4 @@
-const lambdaFunction = require('../lambda.js')
+const lambdaFunction = require('../dist/lambda')
 const apiGatewayEvent = require('../api-gateway-event.json')
 
 const server = lambdaFunction.handler(apiGatewayEvent, {

@@ -46,7 +46,7 @@ Resources:
     Type: AWS::Serverless::Api
   AwsServerlessExpressFunction:
     Properties:
-      CodeUri: s3://mysandboxbucket-2017-1/584995902080ab5d21242ad53acbf716
+      CodeUri: s3://mysandboxbucket-2017-1/f9709041aad521f257df90268ec86eec
       Events:
         ProxyApiGreedy:
           Properties:
@@ -62,7 +62,7 @@ Resources:
             RestApiId:
               Ref: ApiGatewayApi
           Type: Api
-      Handler: lambda.handler
+      Handler: dist/lambda.handler
       MemorySize: 1024
       Role:
         Fn::GetAtt:

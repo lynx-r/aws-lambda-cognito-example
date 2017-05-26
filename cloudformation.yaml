@@ -53,8 +53,8 @@ Resources:
   AwsServerlessExpressFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: ./dist
-      Handler: lambda.handler
+      CodeUri: ./dist.zip
+      Handler: dist/lambda.handler
       MemorySize: 1024
       Role: !GetAtt LambdaExecutionRole.Arn
       Runtime: nodejs6.10

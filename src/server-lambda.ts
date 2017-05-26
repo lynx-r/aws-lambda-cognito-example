@@ -37,17 +37,14 @@ export class ServerLambda extends ServerBase {
     }).setConfig((app) => {
       this.config(app);
       this.configPassport(app);
-      // this.configLambda(app);
+      this.configLambda(app);
     }).build();
-    this.configLambda(r);
-    return this.app;
+    // this.configLambda(r);
+    // return this.app;
   }
 
   private configLambda(app) {
     app.use(awsServerlessExpressMiddleware.eventContext());
-    let listen = (app) => {
-      console.log(`${app.name} listening on ${app.url}`);
-    };
     this.server = awsServerlessExpress.createServer(app, null, AppConstants.BINARY_MIME_TYPES);
   }
 
