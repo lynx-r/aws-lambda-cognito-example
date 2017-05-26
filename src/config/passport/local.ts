@@ -2,8 +2,9 @@ import {Strategy} from "passport-local";
 import {inject} from "inversify";
 import {TYPES} from "../../constant/types";
 import {UserService} from "../../service/user.service";
-import {provide, provideSingleton} from "../../ioc/ioc";
+import {provideSingleton} from "../../ioc/ioc";
 import {Passport} from "passport";
+import {nconf} from "../config";
 
 @provideSingleton(TYPES.LocalStrategy)
 export class LocalStrategy {
@@ -13,7 +14,7 @@ export class LocalStrategy {
 
   getStrategy() {
     return new Strategy({
-      usernameField: 'email'
+      usernameField: nconf.get('passport:username_field')
     }, (email, password, done) => {
       this.userService.findOne({email}, (err, user) => {
         if (err) {

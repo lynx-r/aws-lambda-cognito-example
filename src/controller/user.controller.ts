@@ -32,7 +32,7 @@ export class UserController implements interfaces.Controller {
 
   @Post('/login')
   login(req, res, next) {
-    this.userService.passport.authenticate('local', function (err, user) {
+    this.userService.passport.authenticate('cognito', function (err, user) {
       if (user == false) {
         res.json(new Response(false, "Login failed"));
       } else {

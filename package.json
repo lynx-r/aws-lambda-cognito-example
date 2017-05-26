@@ -65,11 +65,13 @@
     "nconf": "^0.8.4",
     "nodemon": "^1.11.0",
     "passport": "^0.3.2",
+    "passport-cognito": "^0.1.9",
     "passport-facebook": "^2.1.1",
     "passport-jwt": "^2.2.1",
     "reflect-metadata": "^0.1.10",
     "restify": "^4.3.0",
-    "uuid": "^3.0.1",
+    "serverless-dynamodb-local": "^0.2.22",
+    "uuid": "^3.0.1"
   },
   "devDependencies": {}
 }

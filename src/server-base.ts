@@ -113,14 +113,11 @@ export class ServerBase {
   }
 
   protected configPassport(app) {
-    let setupPassportFunc = bindDependencies(
-      setupPassport,
-      [TYPES.JwtStrategy, TYPES.LocalStrategy]);
-    let passportService = container.get<UserService>(TYPES.UserService);
+    let userService = container.get<UserService>(TYPES.UserService);
     // setup strategies
-    let strategies = setupPassportFunc();
+    let strategies = setupPassport();
     strategies.forEach((strategy) => {
-      passportService.passport.use(strategy);
+      userService.passport.use(strategy);
     });
     app.use(passport.initialize());
     app.use(passport.session());

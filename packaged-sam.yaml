@@ -46,7 +46,7 @@ Resources:
     Type: AWS::Serverless::Api
   AwsServerlessExpressFunction:
     Properties:
-      CodeUri: s3://mysandboxbucket-2017-1/f9709041aad521f257df90268ec86eec
+      CodeUri: s3://mysandboxbucket-2017-1/91a50a390d5f925264bf92ff120e5ad6
       Events:
         ProxyApiGreedy:
           Properties:
