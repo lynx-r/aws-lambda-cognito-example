@@ -8,7 +8,6 @@ import {nconf} from "./config/config";
 import {InversifyRestifyServer} from "inversify-restify-utils";
 import {log} from "util";
 import setupPassport = require("./config/passport");
-import {Response} from "./model/response";
 import helmet = require("helmet");
 import passport = require("passport");
 
@@ -24,11 +23,10 @@ import {UserService} from "./service/user.service";
  *
  * @class Server
  */
-export class Server {
+export class ServerBase {
 
   public app: restify.Server;
-  private logger: Logger;
-  private passport: number;
+  protected logger: Logger;
 
   /**
    * Constructor.
@@ -56,16 +54,12 @@ export class Server {
         }
       ]
     });
+  }
 
-    //create restify application
-    this.app = new InversifyRestifyServer(container, {
-      name: AppConstants.APP_NAME,
-      version: nconf.get("server:api_version"),
-      log: this.logger
-    }).setConfig((app) => {
-      this.config(app);
-      this.configPassport(app);
-    }).build();
+  protected listen(app) {
+    app.listen(this.getPort(), this.getHost(), () => {
+      log(`${app.name} listening at ${app.url}`);
+    });
   }
 
   /**
@@ -88,7 +82,7 @@ export class Server {
    * @class Server
    * @method config
    */
-  public config(app) {
+  protected config(app) {
     // configure cors
     app.use(restify.CORS({
       origins: nconf.get("server:origins"),   // defaults to ['*']
@@ -101,10 +95,6 @@ export class Server {
     // to get passed json in req.body
     app.use(restify.bodyParser());
 
-    // start listening
-    app.listen(this.getPort(), this.getHost(), () => {
-      log(`${app.name} listening at ${app.url}`);
-    });
     // error handler
     app.on('error', (error) => {
       this.onError(error);
@@ -122,7 +112,7 @@ export class Server {
     app.use(helmet());
   }
 
-  private configPassport(app) {
+  protected configPassport(app) {
     let setupPassportFunc = bindDependencies(
       setupPassport,
       [TYPES.JwtStrategy, TYPES.LocalStrategy]);
@@ -141,7 +131,7 @@ export class Server {
    * @returns {number}
    */
   getPort(): number {
-    return Server.normalizePort(process.env.PORT || nconf.get("server:port") || 3000);
+    return ServerBase.normalizePort(process.env.PORT || nconf.get("server:port") || 3000);
   }
 
   /**

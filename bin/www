@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 "use strict";
 
-const restify = require('../dist/server');
-const server = new restify.Server();
+const ns = require('../dist/server-local');
+const server = new ns.ServerLocal();
 server.bootstrap();
