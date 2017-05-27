@@ -19,15 +19,16 @@ export class UserController implements interfaces.Controller {
   }
 
   @Post('/')
-  createUser(req: restify.Request, res: restify.Response, next: restify.Next) {
-    this.userService.createUser(req.body, (err, user) => {
-      if (err) {
-        console.error(err.message);
-        return res.json(new InternalServerError(err.message))
-      }
-      res.json(new Response(true, 'User was created', user));
-      next();
-    });
+  signup(req: restify.Request, res: restify.Response, next: restify.Next) {
+    this.userService.signup(req.body.email, req.body.password, req.body.displayName,
+      (err, user) => {
+        if (err) {
+          console.error(err.message);
+          return res.json(new Response(false, err));
+        }
+        res.json(new Response(true, 'User was created', user));
+        next();
+      });
   }
 
   @Post('/login')

@@ -2,7 +2,7 @@ import nconf = require("nconf");
 import path = require("path");
 
 nconf.argv().env().file({
-  file: 'config.json'
+  file: `${__dirname}/config.json`
 });
 
 export {nconf}
