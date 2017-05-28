@@ -18,37 +18,52 @@ export class UserController implements interfaces.Controller {
   constructor(@inject(TYPES.UserService) private userService: UserService) {
   }
 
-  @Post('/')
-  signup(req: restify.Request, res: restify.Response, next: restify.Next) {
-    this.userService.signup(req.body.email, req.body.password, req.body.displayName,
-      (err, user) => {
-        if (err) {
-          console.error(err.message);
-          return res.json(new Response(false, err));
-        }
-        res.json(new Response(true, 'User was created', user));
-        next();
-      });
+  @Post('/register')
+  register(req: restify.Request, res: restify.Response, next: restify.Next) {
+    this.userService.register(req.body.given_name, req.body.username, req.body.email, req.body.password, (err, user) => {
+      if (err) {
+        console.error(err.message);
+        return res.json(new Response(false, err));
+      }
+      res.json(new Response(true, 'User was created', user));
+      next();
+    });
+  }
+
+  @Post('/confirmRegistration')
+  confirmRegistration(req: restify.Request, res: restify.Response, next: restify.Next) {
+    this.userService.confirmRegistration(req.body.username, req.body.confirmationCode, (error, response) => {
+      if (error) {
+        console.error(error);
+        return res.json(new Response(false, error));
+      }
+      res.json(new Response(true, 'You were confirmed', response));
+      next();
+    })
+  }
+
+  @Post('/resendCode')
+  resendCode(req: restify.Request, res: restify.Response, next: restify.Next) {
+    this.userService.resendCode(req.body.username, (error, response) => {
+      if (error) {
+        console.error(error);
+        return res.json(new Response(false, error));
+      }
+      res.json(new Response(true, 'Code was sent', response));
+      next();
+    })
   }
 
   @Post('/login')
   login(req, res, next) {
-    this.userService.passport.authenticate('cognito', function (err, user) {
-      if (user == false) {
-        res.json(new Response(false, "Login failed"));
-      } else {
-        console.log(err);
-        //--payload - информация которую мы храним в токене и можем из него получать
-        const payload = {
-          id: user._id,
-          displayName: user.displayName,
-          email: user.email
-        };
-        const token = jwt.sign(payload, nconf.get('jwtSecret'), {expiresIn: 7200}); //здесь создается JWT
-
-        res.json(new Response(true, 'User logged in', {userId: user._id, token: token}));
+    this.userService.authenticate(req.body.username, req.body.password, (error, user) => {
+      if (error) {
+        console.error(error);
+        return res.json(new Response(false, error));
       }
-    })(req, res, next);
+      res.json(new Response(true, 'User was authenticated', user));
+      next();
+    });
   }
 
   @Get('/')
