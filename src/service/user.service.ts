@@ -40,36 +40,6 @@ export class UserService {
     cognitoidentityserviceprovider.signUp(params, callback);
   }
 
-  login(displayName, email, password, callback) {
-    const params = {
-      AuthFlow: 'ADMIN_NO_SRP_AUTH',
-      ClientId: nconf.get('aws:cognito:user_pool_client_id'),
-      UserPoolId: nconf.get('aws:cognito:user_pool_id'),
-      AuthParameters: {
-        USERNAME: email,
-        PASSWORD: password
-      }
-    };
-    console.log(params);
-
-    const cognitoidentityserviceprovider = new CognitoIdentityServiceProvider(UserService.getAWSRegion());
-    cognitoidentityserviceprovider.adminInitiateAuth(params, function (err, data) {
-      if (err) {
-        console.log(err, err.stack);
-      } else {
-        console.log(data);
-      }
-    });
-  }
-
-  safeUser(user: IUser) {
-    return <IUser>{
-      _id: user._id,
-      displayName: user.displayName,
-      email: user.email,
-    };
-  }
-
   confirmRegistration(username, confirmationCode: any, callback: (err, user) => any) {
     const params = {
       ClientId: nconf.get('aws:cognito:user_pool_client_id'),
@@ -92,10 +62,6 @@ export class UserService {
     cognitoIdentityServiceProvider.resendConfirmationCode(params, callback);
   }
 
-  private static getAWSRegion() {
-    return {region: nconf.get('aws:region')};
-  }
-
   authenticate(username: string, password: string, callback: (error, user) => any) {
     let params = {
       AuthFlow: 'ADMIN_NO_SRP_AUTH',
@@ -108,6 +74,10 @@ export class UserService {
     };
     let cognitoIdentityServiceProvider = new CognitoIdentityServiceProvider(UserService.getAWSRegion());
     cognitoIdentityServiceProvider.adminInitiateAuth(params, callback);
+  }
+
+  private static getAWSRegion() {
+    return {region: nconf.get('aws:region')};
   }
 
 }
