@@ -1,9 +1,7 @@
 import fs = require('fs');
 import events = require('events');
 import Logger = require("bunyan");
-import setupPassport = require("./config/passport");
 import helmet = require("helmet");
-import passport = require("passport");
 import * as restify from "restify";
 
 import './ioc/loader';
@@ -29,7 +27,6 @@ export class ServerLocal extends ServerBase{
       log: this.logger
     }).setConfig((app) => {
       this.config(app);
-      this.configPassport(app);
       this.listen(app);
     }).build();
     return this.app;

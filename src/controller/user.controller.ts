@@ -5,11 +5,9 @@ import {Controller, Get, interfaces, Post, TYPE} from "inversify-restify-utils";
 import {TYPES} from "../constant/types";
 import {nconf} from "../config/config";
 import jwt = require("jsonwebtoken");
-import * as passport from "passport";
 import * as restify from 'restify';
 import TAGS from "../constant/tags";
 import {provideNamed} from "../ioc/ioc";
-import {InternalServerError} from "restify";
 
 @Controller('/users')
 @provideNamed(TYPE.Controller, TAGS.UserController)
@@ -20,7 +18,7 @@ export class UserController implements interfaces.Controller {
 
   @Post('/register')
   register(req: restify.Request, res: restify.Response, next: restify.Next) {
-    this.userService.register(req.body.given_name, req.body.username, req.body.email, req.body.password, (err, user) => {
+    this.userService.register(req.body.given_name, req.body.email, req.body.password, (err, user) => {
       if (err) {
         console.error(err.message);
         return res.json(new Response(false, err));
@@ -32,31 +30,31 @@ export class UserController implements interfaces.Controller {
 
   @Post('/confirmRegistration')
   confirmRegistration(req: restify.Request, res: restify.Response, next: restify.Next) {
-    this.userService.confirmRegistration(req.body.username, req.body.confirmationCode, (error, response) => {
+    this.userService.confirmRegistration(req.body.email, req.body.confirmationCode, (error, result) => {
       if (error) {
         console.error(error);
         return res.json(new Response(false, error));
       }
-      res.json(new Response(true, 'You were confirmed', response));
+      res.json(new Response(true, 'You were confirmed', result));
       next();
     })
   }
 
   @Post('/resendCode')
   resendCode(req: restify.Request, res: restify.Response, next: restify.Next) {
-    this.userService.resendCode(req.body.username, (error, response) => {
+    this.userService.resendCode(req.body.email, (error, result) => {
       if (error) {
         console.error(error);
         return res.json(new Response(false, error));
       }
-      res.json(new Response(true, 'Code was sent', response));
+      res.json(new Response(true, 'Code was sent', result));
       next();
     })
   }
 
-  @Post('/login')
-  login(req, res, next) {
-    this.userService.authenticate(req.body.username, req.body.password, (error, user) => {
+  @Post('/authenticate')
+  authenticate(req, res, next) {
+    this.userService.authenticate(req.body.email, req.body.password, (error, user) => {
       if (error) {
         console.error(error);
         return res.json(new Response(false, error));
@@ -66,12 +64,40 @@ export class UserController implements interfaces.Controller {
     });
   }
 
-  @Get('/')
-  findUsers(req, res, next) {
+  @Post('/forgotPassword')
+  forgotPassword(req, res, next) {
+    this.userService.forgotPassword(req.body.email, (error, result) => {
+      if (error) {
+        console.error(error);
+        return res.json(new Response(false, error));
+      }
+      res.json(new Response(true, 'An email was sent', result));
+      next();
+    })
   }
 
-  @Get('/:id')
-  findUser(req, res, next) {
+  @Post('/confirmNewPassword')
+  confirmNewPassword(req: restify.Request, res: restify.Response, next: restify.Next) {
+    this.userService.confirmNewPassword(req.body.email, req.body.confirmationCode, req.body.password, (error, result) => {
+      if (error) {
+        console.error(error);
+        return res.json(new Response(false, error));
+      }
+      res.json(new Response(true, 'Password was changed', result));
+      next();
+    })
+  }
+
+  @Get('/logout')
+  logout(req: restify.Request, res: restify.Response, next: restify.Next) {
+    this.userService.logout(req.body.email, (error, result) => {
+      if (error) {
+        console.error(error);
+        return res.json(new Response(false, error));
+      }
+      res.json(new Response(true, 'You were logged out', result));
+      next();
+    })
   }
 
 }

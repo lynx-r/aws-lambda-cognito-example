@@ -86,8 +86,18 @@ functions:
           path: /users/resendCode
           method: post
       - http:
-          path: /users/login
+          path: /users/authenticate
           method: post
+      - http:
+          path: /users/forgotPassword
+          method: post
+      - http:
+          path: /users/confirmNewPassword
+          method: post
+      - http:
+          path: /users/logout
+          method: get
+
       - http:
           path: /articles
           method: get

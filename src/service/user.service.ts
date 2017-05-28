@@ -1,33 +1,21 @@
 import {inject} from "inversify";
 import {UserRepository} from "../dao/user-repository";
 import {TYPES} from "../constant/types";
-import {IUser} from "../model/user";
 import {provideSingleton} from "../ioc/ioc";
-import * as passport from "passport";
 import CognitoIdentityServiceProvider = require("aws-sdk/clients/cognitoidentityserviceprovider");
 import {nconf} from "../config/config";
 
 @provideSingleton(TYPES.UserService)
 export class UserService {
 
-  passport: passport.Passport = new passport.Passport();
-
   constructor(@inject(TYPES.UserRepository) private repo: UserRepository) {
   }
 
-  findOne(param: object, callback: (err, user) => any) {
-    this.repo.findOne(param, callback);
-  }
-
-  findById(id, callback: (err, user) => any) {
-    this.repo.findById(id, callback);
-  }
-
-  register(given_name: string, username: string, email: string, password: string,
+  register(given_name: string, email: string, password: string,
            callback: (error, response) => any) {
     const params = {
       ClientId: nconf.get('aws:cognito:user_pool_client_id'),
-      Username: username,
+      Username: email,
       Password: password,
       UserAttributes: [
         {Name: "email", Value: email},
@@ -40,10 +28,10 @@ export class UserService {
     cognitoidentityserviceprovider.signUp(params, callback);
   }
 
-  confirmRegistration(username, confirmationCode: any, callback: (err, user) => any) {
+  confirmRegistration(email, confirmationCode: any, callback: (err, user) => any) {
     const params = {
       ClientId: nconf.get('aws:cognito:user_pool_client_id'),
-      Username: username,
+      Username: email,
       ConfirmationCode: confirmationCode
     };
     console.log(params);
@@ -52,23 +40,23 @@ export class UserService {
     cognitoidentityserviceprovider.confirmSignUp(params, callback);
   }
 
-  resendCode(username: string, callback: (err, user) => any): void {
+  resendCode(email: string, callback: (err, user) => any): void {
     let params = {
       ClientId: nconf.get('aws:cognito:user_pool_client_id'),
-      Username: username
+      Username: email
     };
 
     let cognitoIdentityServiceProvider = new CognitoIdentityServiceProvider(UserService.getAWSRegion());
     cognitoIdentityServiceProvider.resendConfirmationCode(params, callback);
   }
 
-  authenticate(username: string, password: string, callback: (error, user) => any) {
+  authenticate(email: string, password: string, callback: (error, user) => any) {
     let params = {
       AuthFlow: 'ADMIN_NO_SRP_AUTH',
       ClientId: nconf.get('aws:cognito:user_pool_client_id'),
       UserPoolId: nconf.get('aws:cognito:user_pool_id'),
       AuthParameters: {
-        USERNAME: username,
+        USERNAME: email,
         PASSWORD: password
       }
     };
@@ -76,8 +64,40 @@ export class UserService {
     cognitoIdentityServiceProvider.adminInitiateAuth(params, callback);
   }
 
+  forgotPassword(email: string, callback: (err, user) => any): void {
+    let params = {
+      ClientId: nconf.get('aws:cognito:user_pool_client_id'),
+      Username: email
+    };
+
+    let cognitoIdentityServiceProvider = new CognitoIdentityServiceProvider(UserService.getAWSRegion());
+    cognitoIdentityServiceProvider.forgotPassword(params, callback);
+  }
+
+
+  confirmNewPassword(email: string, confirmationCode: string, password: string, callback: (error, result)=>any) {
+    let params = {
+      ClientId: nconf.get('aws:cognito:user_pool_client_id'),
+      Username: email,
+      ConfirmationCode: confirmationCode,
+      Password: password
+    };
+
+    let cognitoIdentityServiceProvider = new CognitoIdentityServiceProvider(UserService.getAWSRegion());
+    cognitoIdentityServiceProvider.confirmForgotPassword(params, callback);
+  }
+
+  logout(email: string, callback: (error, result) => any) {
+    let params = {
+      UserPoolId: nconf.get('aws:cognito:user_pool_id'),
+      Username: email
+    };
+
+    let cognitoIdentityServiceProvider = new CognitoIdentityServiceProvider(UserService.getAWSRegion());
+    cognitoIdentityServiceProvider.adminUserGlobalSignOut(params, callback);
+  }
+
   private static getAWSRegion() {
     return {region: nconf.get('aws:region')};
   }
-
 }

@@ -7,9 +7,9 @@ import {AppConstants} from "./constant/app-constants";
 import {nconf} from "./config/config";
 import {InversifyRestifyServer} from "inversify-restify-utils";
 import {log} from "util";
-import setupPassport = require("./config/passport");
+// import setupPassport = require("./config/passport");
 import helmet = require("helmet");
-import passport = require("passport");
+// import passport = require("passport");
 
 import {bindDependencies, bindDependenciesWithUnused, container} from "./ioc/ioc";
 // load all injectable entities.
@@ -112,16 +112,16 @@ export class ServerBase {
     app.use(helmet());
   }
 
-  protected configPassport(app) {
-    let userService = container.get<UserService>(TYPES.UserService);
-    // setup strategies
-    let strategies = setupPassport();
-    strategies.forEach((strategy) => {
-      userService.passport.use(strategy);
-    });
-    app.use(passport.initialize());
-    app.use(passport.session());
-  }
+  // protected configPassport(app) {
+  //   let userService = container.get<UserService>(TYPES.UserService);
+  //   // setup strategies
+  //   let strategies = setupPassport();
+  //   strategies.forEach((strategy) => {
+  //     userService.passport.use(strategy);
+  //   });
+  //   app.use(passport.initialize());
+  //   app.use(passport.session());
+  // }
 
   /**
    * get port from env or config.json
