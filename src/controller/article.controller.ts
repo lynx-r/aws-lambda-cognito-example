@@ -1,5 +1,5 @@
 import {ArticleService} from "../service/article.service";
-import {Response} from "../model/response";
+import {Response} from "../http/response";
 import {InternalServerError, ResourceNotFoundError} from "restify";
 import {inject} from "inversify";
 import {Controller, Get, interfaces, TYPE} from "inversify-restify-utils";

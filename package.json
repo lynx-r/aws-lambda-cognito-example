@@ -51,6 +51,7 @@
     "aws-sdk": "^2.58.0",
     "aws-serverless-express": "^3.0.1",
     "bcryptjs": "^2.4.3",
+    "dynongo": "^0.12.1",
     "helmet": "^3.6.1",
     "http-status-enum": "^1.0.2",
     "inversify": "^4.1.0",

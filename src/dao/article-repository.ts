@@ -1,5 +1,5 @@
 import {RepositoryBase} from "./repository-base";
-import {IArticle, ArticleModel} from "../model/article";
+import {IArticle, ArticleModel} from "../http/article";
 import {provide} from "../ioc/ioc";
 import {TYPES} from "../constant/types";
 

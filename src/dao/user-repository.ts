@@ -1,5 +1,5 @@
 import {RepositoryBase} from "./repository-base";
-import {IUser, UserModel} from "../model/User";
+import {IUser, UserModel} from "../http/User";
 import {provide} from "../ioc/ioc";
 import {TYPES} from "../constant/types";
 

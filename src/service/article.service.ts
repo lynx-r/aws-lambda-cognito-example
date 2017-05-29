@@ -1,4 +1,4 @@
-import {IArticle} from "../model/article";
+import {IArticle} from "../http/article";
 import {ArticleRepository} from "../dao/article-repository";
 import {inject} from "inversify";
 import {TYPES} from "../constant/types";

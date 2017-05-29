@@ -1,5 +1,5 @@
 import {UserService} from "../service/user.service";
-import {Response} from "../model/response";
+import {Response} from "../http/response";
 import {inject, unmanaged} from "inversify";
 import {Controller, Get, interfaces, Post, TYPE} from "inversify-restify-utils";
 import {TYPES} from "../constant/types";
