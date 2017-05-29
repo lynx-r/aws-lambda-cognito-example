@@ -1,5 +1,7 @@
 Используемые технологии:
 
+Serverless - framework для хостинга на AWS Lambda
+
 Restify - сервер
 
 Dynongo - библиотека для работы с DynamoDB
