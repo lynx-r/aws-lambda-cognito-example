@@ -2,12 +2,10 @@
 
 Restify - сервер
 
-Mongoose - midleware для работы с БД
+Dynongo - библиотека для работы с DynamoDB
 
 Inversify - DI
 
 inversify-restify-utils - class based controllers
 
-Passport - авторизация
-
-JWT - токен
+Cognito - система управления пользователями
