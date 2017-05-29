@@ -1,5 +1,3 @@
-import {inject} from "inversify";
-import {UserRepository} from "../dao/user-repository";
 import {TYPES} from "../constant/types";
 import {provideSingleton} from "../ioc/ioc";
 import CognitoIdentityServiceProvider = require("aws-sdk/clients/cognitoidentityserviceprovider");
@@ -8,7 +6,7 @@ import {nconf} from "../config/config";
 @provideSingleton(TYPES.UserService)
 export class UserService {
 
-  constructor(@inject(TYPES.UserRepository) private repo: UserRepository) {
+  constructor() {
   }
 
   register(given_name: string, email: string, password: string,

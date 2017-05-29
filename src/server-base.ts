@@ -1,22 +1,16 @@
 import * as restify from "restify";
-import * as mongoose from "mongoose";
 import fs = require('fs');
 import events = require('events');
 import Logger = require("bunyan");
 import {AppConstants} from "./constant/app-constants";
 import {nconf} from "./config/config";
-import {InversifyRestifyServer} from "inversify-restify-utils";
 import {log} from "util";
-// import setupPassport = require("./config/passport");
 import helmet = require("helmet");
-// import passport = require("passport");
+import db = require("dynongo");
 
-import {bindDependencies, bindDependenciesWithUnused, container} from "./ioc/ioc";
 // load all injectable entities.
 // the @provide() annotation will then automatically register them.
 import './ioc/loader';
-import {TYPES} from "./constant/types";
-import {UserService} from "./service/user.service";
 
 /**
  * The server.
@@ -54,6 +48,7 @@ export class ServerBase {
       //   }
       // ]
     });
+    this.dynongo();
   }
 
   protected listen(app) {
@@ -65,15 +60,18 @@ export class ServerBase {
   /**
    * Create mongoose connection
    */
-  private mongoose() {
-    let uri = nconf.get('database:uri');
-    mongoose.connect(uri, (err) => {
-      if (err) {
-        log(err.message);
-      } else {
-        log('Connected to MongoDb');
-      }
+  protected dynongo() {
+    const AWS = require("aws-sdk");
+
+    AWS.config.update({
+      region: "us-west-2",
+      endpoint: "http://localhost:8000"
     });
+
+    const docClient = new AWS.DynamoDB.DocumentClient();
+    db.connect(docClient);
+
+    console.log(`Dynongo connected ${db}`);
   }
 
   /**

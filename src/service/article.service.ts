@@ -1,27 +1,38 @@
-import {IArticle} from "../http/article";
-import {ArticleRepository} from "../dao/article-repository";
-import {inject} from "inversify";
+import db = require("dynongo");
+
 import {TYPES} from "../constant/types";
 import {provideSingleton} from "../ioc/ioc";
+import {Table} from "dynongo/lib/table";
 
 @provideSingleton(TYPES.ArticleService)
 export class ArticleService {
 
-  constructor(@inject(TYPES.ArticleRepository) private repo: ArticleRepository) {
+  Article: Table;
+
+  constructor() {
+    this.Article = db.table('Article');
   }
 
-  findAll(callback) {
-    this.repo.find((err: any, res: IArticle[]) => {
-      callback(err, res);
-    });
+  findAll(cb, err) {
+    this.Article.find().exec()
+      .then(cb)
+      .catch(err);
   }
 
   findById(_id: string, callback) {
-    if (!_id) {
-      throw 'Invalid id';
-    }
-
-    this.repo.findById(_id, callback);
+    callback();
   }
 
+  createArticle(body: any, cb: (newArticle) => any, err) {
+    const key = {
+      slug: body.slug,
+      title: body.title
+    };
+    const value = {
+      content: body.content
+    };
+    this.Article.insert(key, value).exec()
+      .then(cb)
+      .catch(err);
+  }
 }

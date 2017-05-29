@@ -1,9 +1,8 @@
 import {UserService} from "../service/user.service";
 import {Response} from "../http/response";
-import {inject, unmanaged} from "inversify";
+import {inject} from "inversify";
 import {Controller, Get, interfaces, Post, TYPE} from "inversify-restify-utils";
 import {TYPES} from "../constant/types";
-import {nconf} from "../config/config";
 import jwt = require("jsonwebtoken");
 import * as restify from 'restify';
 import TAGS from "../constant/tags";
