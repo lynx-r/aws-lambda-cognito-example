@@ -26,7 +26,6 @@
   }
 }
 ```
-
 И включим компилятор в настройках:
 
 ![Настройки компилятора](https://monosnap.com/file/xcOIklg078fiN22lUTXG9aPqIhP6R0.png)
@@ -136,8 +135,9 @@ import '../service/user.service';
 import '../service/article.service';
 ```
 
-Теперь приступим к написанию сервера:
+**Теперь приступим к написанию сервера.**
 
+Настроим сервер.
 ```typescript
 // configure cors
 app.use(restify.CORS({
@@ -164,7 +164,25 @@ app.on('after', restify.auditLogger({
   log: this.logger
 }));
 
-app.use(helmet());
+app.use(helmet()); // прячем некоторые заголовки вроде X-Powered-By
+```
+
+Поместим его в контейнер:
+
+```typescript
+bootstrap(): restify.Server {
+  super.bootstrap();
+  //create restify application
+  this.app = new InversifyRestifyServer(container, {
+    name: AppConstants.APP_NAME,
+    version: nconf.get("server:api_version"),
+    log: this.logger
+  }).setConfig((app) => {
+    this.config(app);
+    this.listen(app);
+  }).build();
+  return this.app;
+}
 ```
 
 Создадим контроллер `UserController`:
