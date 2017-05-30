@@ -35,18 +35,6 @@ export class ServerBase {
     // this.mongoose();
     this.logger = Logger.createLogger({
       name: AppConstants.APP_NAME
-      // streams: [
-      //   /*{
-      //     level: 'info',
-      //     stream: process.stdout
-      //   },*/ {
-      //     level: 'info',
-      //     type: 'rotating-file',
-      //     path: nconf.get("logger:path"),
-      //     period: '1d',   // daily rotation
-      //     count: 3        // keep 3 back copies
-      //   }
-      // ]
     });
     this.dynongo();
   }

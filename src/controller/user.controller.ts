@@ -3,7 +3,6 @@ import {Response} from "../http/response";
 import {inject} from "inversify";
 import {Controller, Get, interfaces, Post, TYPE} from "inversify-restify-utils";
 import {TYPES} from "../constant/types";
-import jwt = require("jsonwebtoken");
 import * as restify from 'restify';
 import TAGS from "../constant/tags";
 import {provideNamed} from "../ioc/ioc";

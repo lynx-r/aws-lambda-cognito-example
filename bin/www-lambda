@@ -1,6 +1,0 @@
-#!/usr/bin/env node
-"use strict";
-
-const restify = require('../dist/server-lambda');
-const server = new restify.ServerLambda();
-server.bootstrap();

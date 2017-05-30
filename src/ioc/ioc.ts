@@ -2,7 +2,6 @@ import 'reflect-metadata';
 import {Container, inject, interfaces} from 'inversify';
 import {autoProvide, makeProvideDecorator, makeFluentProvideDecorator} from 'inversify-binding-decorators';
 import {makeLoggerMiddleware} from 'inversify-logger-middleware';
-import {UserController} from "../controller/user.controller";
 
 let container = new Container();
 
