@@ -29,6 +29,5 @@ export class ServerLocal extends ServerBase{
       this.config(app);
       this.listen(app);
     }).build();
-    return this.app;
   }
 }

@@ -1,4 +1,40 @@
 We are going to compile the project in JavaScript with help of IntelliJIdea. 
+
+**The project structure**
+```
+.
+├── README.md
+├── bin
+│   └── www // enterpoint for the local server
+├── package.json
+├── serverless.yml // a configuration of Serverless Framework 
+├── src
+│   ├── config
+│   │   ├── config.json // a configuration of the local project
+│   │   └── config.ts
+│   ├── constant
+│   │   ├── app-constants.ts
+│   │   ├── tags.ts
+│   │   └── types.ts
+│   ├── controller // controllers based on inversify-restify-utils 
+│   │   ├── article.controller.ts
+│   │   ├── home.controller.ts
+│   │   └── user.controller.ts
+│   ├── http
+│   │   └── response.ts
+│   ├── ioc // inversify
+│   │   ├── ioc.ts
+│   │   └── loader.ts
+│   ├── lambda.ts // enterpoint for AWS Lambda
+│   ├── server-base.ts // the base class for the server. base settings
+│   ├── server-lambda.ts // inherited from base, class for lambda 
+│   ├── server-local.ts // inherited from base, class for local
+│   └── service
+│       ├── article.service.ts
+│       └── user.service.ts
+└── tsconfig.json
+```
+
 For that purpose edit `tsconfig.js` by setting `compileOnSave` to `true`
 ```{
   "compileOnSave": true, // required for onfly compilation
@@ -35,48 +71,13 @@ Add task `Compile TypeScript` before launching:
 
 ![Compile TypeScript](https://monosnap.com/file/cbi6Qfa2tZQMD4Bqer4Dy7jo7TriKh.png)
 
-The project structure:
-```
-.
-├── README.md
-├── bin
-│   └── www // enterpoint for the local server
-├── package.json
-├── serverless.yml // a configuration of Serverless Framework 
-├── src
-│   ├── config
-│   │   ├── config.json // a configuration of the local project
-│   │   └── config.ts
-│   ├── constant
-│   │   ├── app-constants.ts
-│   │   ├── tags.ts
-│   │   └── types.ts
-│   ├── controller // controllers based on inversify-restify-utils 
-│   │   ├── article.controller.ts
-│   │   ├── home.controller.ts
-│   │   └── user.controller.ts
-│   ├── http
-│   │   └── response.ts
-│   ├── ioc // inversify
-│   │   ├── ioc.ts
-│   │   └── loader.ts
-│   ├── lambda.ts // enterpoint for AWS Lambda
-│   ├── server-base.ts // the base class for server the main setupes
-│   ├── server-lambda.ts // inherited from base, class for lambda 
-│   ├── server-local.ts // inherited from base, class for local
-│   └── service
-│       ├── article.service.ts
-│       └── user.service.ts
-└── tsconfig.json
-```
-
 Create watcher for `config.json`. It watches for changes and copies that file
 to `dist/config`
 ![File watcher](https://monosnap.com/file/eq6EuGQ8YbI6wq9ROKRMj1BS1KLXq9.png)
 
 **All previous tasks can be done using grunt or gulp**
 
-Configure Inversion of Control. For that create `ioc.ts`:
+Configure Inversion of Control. By creating `ioc.ts`:
 
 ```typescript
 import 'reflect-metadata'; // don't forget to import this 
@@ -94,20 +95,20 @@ if (process.env.NODE_ENV === 'development') { // for logging of injections
 let provide = makeProvideDecorator(container);
 let fluentProvider = makeFluentProvideDecorator(container);
 
-let provideSingleton = function(identifier) { // annotation for providing singleton
+let provideSingleton = function(identifier) { // the annotation for providing singleton
   return fluentProvider(identifier)
     .inSingletonScope()
     .done();
 };
 
-let provideNamed = function (identifier, name) { // annotation for providing by name
+let provideNamed = function (identifier, name) { // the annotation for providing by name
   return fluentProvider(identifier)
     .inSingletonScope()
     .whenTargetNamed(name)
     .done();
 };
 
-let bindDependencies = function (func, dependencies) { // for function injections. e.g. func = bindDependencies(myFunc, [TYPES.MyService]); func();
+let bindDependencies = function (func, dependencies) { // for a function injections. e.g. func = bindDependencies(myFunc, [TYPES.MyService]); func();
   let injections = dependencies.map((dependency) => {
     return container.get(dependency);
   });
@@ -176,7 +177,6 @@ bootstrap(): restify.Server {
     this.config(app);
     this.listen(app);
   }).build();
-  return this.app;
 }
 ```
 
@@ -302,11 +302,11 @@ createArticle(body: any, cb: (newArticle) => any, err) {
 
 **Deployment**
 
-Before deployment you need to configure zipping of node_modules and dist folders.
+Before deployment you need to configure zipping of `node_modules` and `dist` folders.
 There is an example of `External Toole`
 ![External tool](https://monosnap.com/file/0YirIoGvQQbaaurnakYk9fXCLzhxTH.png)
 
-Then add this tool to tasks before launching:
+Then add this tool to the tasks before launching:
 ![Before launch](https://monosnap.com/file/klsBXaoHEZh2L9QLLxkKe8kFqHZNRp.png)
 
 Install required packages:
