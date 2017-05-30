@@ -139,32 +139,34 @@ import '../service/article.service';
 
 Настроим сервер.
 ```typescript
-// configure cors
-app.use(restify.CORS({
-  origins: nconf.get("server:origins"),   // defaults to ['*']
-  credentials: false,                 // defaults to false
-}));
-
-// to get query params in req.query
-app.use(restify.acceptParser(app.acceptable));
-// to get passed json in req.body
-app.use(restify.bodyParser());
-
-// error handler
-app.on('error', (error) => {
-  this.onError(error);
-});
-// process exceptions
-app.on('uncaughtException', function (request, response, route, error) {
-  console.error(error.stack);
-  response.send(error);
-});
-// audit logger
-app.on('after', restify.auditLogger({
-  log: this.logger
-}));
-
-app.use(helmet()); // прячем некоторые заголовки вроде X-Powered-By
+config(app) {
+  // configure cors
+  app.use(restify.CORS({
+    origins: nconf.get("server:origins"),   // defaults to ['*']
+    credentials: false,                 // defaults to false
+  }));
+  
+  // to get query params in req.query
+  app.use(restify.acceptParser(app.acceptable));
+  // to get passed json in req.body
+  app.use(restify.bodyParser());
+  
+  // error handler
+  app.on('error', (error) => {
+    this.onError(error);
+  });
+  // process exceptions
+  app.on('uncaughtException', function (request, response, route, error) {
+    console.error(error.stack);
+    response.send(error);
+  });
+  // audit logger
+  app.on('after', restify.auditLogger({
+    log: this.logger
+  }));
+  
+  app.use(helmet()); // прячем некоторые заголовки вроде X-Powered-By
+}
 ```
 
 Поместим его в контейнер:
