@@ -1,5 +1,3 @@
-We are going to compile the project in JavaScript with help of IntelliJIdea. 
-
 **The project structure**
 ```
 .
@@ -34,6 +32,8 @@ We are going to compile the project in JavaScript with help of IntelliJIdea.
 │       └── user.service.ts
 └── tsconfig.json
 ```
+
+We are going to compile the project in JavaScript with help of IntelliJIdea. 
 
 For that purpose edit `tsconfig.js` by setting `compileOnSave` to `true`
 ```{
