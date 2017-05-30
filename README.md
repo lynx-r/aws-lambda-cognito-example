@@ -1,6 +1,7 @@
-Проект компилировать в JavaScript будем средствами Intellij Idea. Для этого создадим tsconfig.json
+We are going to compile the project in JavaScript with help of IntelliJIdea. 
+For that purpose edit `tsconfig.js` by setting `compileOnSave` to `true`
 ```{
-  "compileOnSave": true, // обязательно
+  "compileOnSave": true, // required for onfly compilation
   "compilerOptions": {
     "outDir": "./dist",
     "baseUrl": "src",
@@ -26,33 +27,31 @@
   }
 }
 ```
-И включим компилятор в настройках:
+Enable TypeScript compiler in the settings:
 
-![Настройки компилятора](https://monosnap.com/file/xcOIklg078fiN22lUTXG9aPqIhP6R0.png)
+![Compiler's settings](https://monosnap.com/file/xcOIklg078fiN22lUTXG9aPqIhP6R0.png)
 
-Далее, добавим задачу компиляции TypeScript при запуске сервера:
+Add task `Compile TypeScript` before launching:
 
-![Компиляция TypeScript](https://monosnap.com/file/cbi6Qfa2tZQMD4Bqer4Dy7jo7TriKh.png)
+![Compile TypeScript](https://monosnap.com/file/cbi6Qfa2tZQMD4Bqer4Dy7jo7TriKh.png)
 
-Структура проекта:
-
-
+The project structure:
 ```
 .
 ├── README.md
 ├── bin
-│   └── www // точка входа для локального сервера
+│   └── www // enterpoint for the local server
 ├── package.json
-├── serverless.yml // конфигурация Serverless Framework 
+├── serverless.yml // a configuration of Serverless Framework 
 ├── src
 │   ├── config
-│   │   ├── config.json // конфигурация локального проекта
+│   │   ├── config.json // a configuration of the local project
 │   │   └── config.ts
 │   ├── constant
 │   │   ├── app-constants.ts
 │   │   ├── tags.ts
 │   │   └── types.ts
-│   ├── controller // контроллера из inversify-restify-utils 
+│   ├── controller // controllers based on inversify-restify-utils 
 │   │   ├── article.controller.ts
 │   │   ├── home.controller.ts
 │   │   └── user.controller.ts
@@ -61,32 +60,33 @@
 │   ├── ioc // inversify
 │   │   ├── ioc.ts
 │   │   └── loader.ts
-│   ├── lambda.ts // точка входа для AWS Lambda
-│   ├── server-base.ts // базовый класс сервера
-│   ├── server-lambda.ts // наследуемый от базового класс для лямбд
-│   ├── server-local.ts // наследуемый класс от базового для локального сервера
+│   ├── lambda.ts // enterpoint for AWS Lambda
+│   ├── server-base.ts // the base class for server the main setupes
+│   ├── server-lambda.ts // inherited from base, class for lambda 
+│   ├── server-local.ts // inherited from base, class for local
 │   └── service
 │       ├── article.service.ts
 │       └── user.service.ts
 └── tsconfig.json
 ```
 
-Далее, создадим watcher для `config.json`. Он будет наблюдать за изменениями этого файла и 
-копировать его в `dist/config`
+Create watcher for `config.json`. It watches for changes and copies that file
+to `dist/config`
+![File watcher](https://monosnap.com/file/eq6EuGQ8YbI6wq9ROKRMj1BS1KLXq9.png)
 
-![Watch config.json](https://monosnap.com/file/o53FGrPJosi2IaOhDQIAea887n2vJi.png)
+**All previous tasks can be done using grunt or gulp**
 
-Настроим Inversion of Control. Для этого создадим файл `ioc.ts`:
+Configure Inversion of Control. For that create `ioc.ts`:
 
 ```typescript
-import 'reflect-metadata'; // не забудьте импортировать эту библиотеку!
-import {Container, inject, interfaces} from 'inversify';
+import 'reflect-metadata'; // don't forget to import this 
+import {Container, inject} from 'inversify';
 import {autoProvide, makeProvideDecorator, makeFluentProvideDecorator} from 'inversify-binding-decorators';
 import {makeLoggerMiddleware} from 'inversify-logger-middleware';
 
 let container = new Container();
 
-if (process.env.NODE_ENV === 'development') { // для логирования инъекций
+if (process.env.NODE_ENV === 'development') { // for logging of injections
   // let logger = makeLoggerMiddleware();
   // container.applyMiddleware(logger);
 }
@@ -94,38 +94,31 @@ if (process.env.NODE_ENV === 'development') { // для логирования �
 let provide = makeProvideDecorator(container);
 let fluentProvider = makeFluentProvideDecorator(container);
 
-let provideSingleton = function(identifier) { // будем предоставлять Singleton вместо Transient по умолчанию
+let provideSingleton = function(identifier) { // annotation for providing singleton
   return fluentProvider(identifier)
     .inSingletonScope()
     .done();
 };
 
-let provideNamed = function (identifier, name) { // предоставлять по имени как Transient
+let provideNamed = function (identifier, name) { // annotation for providing by name
   return fluentProvider(identifier)
     .inSingletonScope()
     .whenTargetNamed(name)
     .done();
 };
 
-let bindDependencies = function (func, dependencies) { // для инъекций в функции. Например func = bindDependencies(myFunc, [TYPES.MyService]); func();
+let bindDependencies = function (func, dependencies) { // for function injections. e.g. func = bindDependencies(myFunc, [TYPES.MyService]); func();
   let injections = dependencies.map((dependency) => {
     return container.get(dependency);
   });
   return func.bind(func, ...injections);
 };
 
-let bindDependenciesWithUnused = function (func, args, dependencies) { // то же самое что и выше, но только не с внедряемыми зависимостями 
-  let injections = dependencies.map((dependency) => {
-    return container.get(dependency);
-  });
-  return func.bind(func, ...args, ...injections);
-};
-
 export {container, autoProvide, provide, provideNamed, provideSingleton,
-  inject, bindDependencies, bindDependenciesWithUnused};
+  inject, bindDependencies};
 ```
 
-Перечислим все внедряемые сервисы в `loader.ts`:
+Import all dependencies in `loader.ts`:
 
 ```typescript
 import '../controller/home.controller';
@@ -135,9 +128,9 @@ import '../service/user.service';
 import '../service/article.service';
 ```
 
-**Теперь приступим к написанию сервера.**
+**Let's configure server**
 
-Настроим сервер.
+Configuration:
 ```typescript
 config(app) {
   // configure cors
@@ -169,7 +162,7 @@ config(app) {
 }
 ```
 
-Поместим его в контейнер:
+Place the server in the inversify container:
 
 ```typescript
 bootstrap(): restify.Server {
@@ -187,17 +180,17 @@ bootstrap(): restify.Server {
 }
 ```
 
-Создадим контроллер `UserController`:
+Let's create the `UserController` controller:
 
 ```typescript
-@Controller('/users') // аннотация из inversify-restify-utils
-@provideNamed(TYPE.Controller, TAGS.UserController) // объявленный ранее маркер позволяющий делять инъекции в этот контроллер
+@Controller('/users') // annotation from inversify-restify-utils
+@provideNamed(TYPE.Controller, TAGS.UserController) // inject by name
 export class UserController implements interfaces.Controller {
 
-  constructor(@inject(TYPES.UserService) private userService: UserService) { // внедрение сервисов
+  constructor(@inject(TYPES.UserService) private userService: UserService) { // injecting services
   }
 
-  @Post('/register') // маркируем метод как post запрос
+  @Post('/register') // annotate method as the post request
   register(req: restify.Request, res: restify.Response, next: restify.Next) {
     this.userService.register(req.body.given_name, req.body.email, req.body.password, (err, user) => {
       if (err) {
@@ -211,10 +204,10 @@ export class UserController implements interfaces.Controller {
 }
 ```
 
-Затем создадим `UserService`:
+Let's create the `UserService`:
 
 ```typescript
-@provideSingleton(TYPES.UserService) // маркируем сервис как внедряемый синглтон
+@provideSingleton(TYPES.UserService) // inject as singleton 
 export class UserService {
 
   constructor() {
@@ -239,9 +232,9 @@ export class UserService {
 }
 ```
 
-**Рассмотрим работу с DynamoDB.**
+**Let's look at working with DynamoDB**
 
-Создадим таблицу:
+Create table:
 
 ```javascript
 const AWS = require("aws-sdk");
@@ -290,7 +283,7 @@ dynamodb.createTable(params, function(err, data) {
 });
 ```
 
-Добавим запись в таблицу:
+Insert a record in the table:
 
 ```typescript
 createArticle(body: any, cb: (newArticle) => any, err) {
@@ -307,4 +300,21 @@ createArticle(body: any, cb: (newArticle) => any, err) {
 }
 ```
 
-На этом все.
+**Deployment**
+
+Before deployment you need to configure zipping of node_modules and dist folders.
+There is an example of `External Toole`
+![External tool](https://monosnap.com/file/0YirIoGvQQbaaurnakYk9fXCLzhxTH.png)
+
+Then add this tool to tasks before launching:
+![Before launch](https://monosnap.com/file/klsBXaoHEZh2L9QLLxkKe8kFqHZNRp.png)
+
+Install required packages:
+```typescript
+npm i
+```
+
+Deploy packages by running
+```typescript
+npm run sls-deploy
+```

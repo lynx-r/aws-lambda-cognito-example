@@ -1,9 +1,3 @@
-import fs = require('fs');
-import events = require('events');
-import Logger = require("bunyan");
-import helmet = require("helmet");
-import * as restify from "restify";
-
 import './ioc/loader';
 import {ServerBase} from "./server-base";
 import {InversifyRestifyServer} from "inversify-restify-utils";
@@ -13,8 +7,7 @@ import {nconf} from "./config/config";
 import {Server} from "restify";
 import awsServerlessExpress = require('aws-serverless-express');
 import awsServerlessExpressMiddleware = require('aws-serverless-express/middleware')
-import * as express from "express";
-import * as _ from "lodash";
+
 /**
  * The server.
  *
@@ -24,8 +17,6 @@ export class ServerLambda extends ServerBase {
   private server: Server;
 
   bootstrap() {
-    // console.log(express());
-    const r = restify.createServer();
     super.bootstrap();
     //create restify application
     this.app = new InversifyRestifyServer(container, {
@@ -36,8 +27,7 @@ export class ServerLambda extends ServerBase {
       this.config(app);
       this.configLambda(app);
     }).build();
-    // this.configLambda(r);
-    // return this.app;
+    // this.configLambda(this.app);
   }
 
   private configLambda(app) {
