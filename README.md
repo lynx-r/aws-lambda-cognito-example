@@ -321,4 +321,4 @@ npm run sls-deploy
 
 **Warning**
 
-To get it working with `aws-serverless-express` you need to apply [this path](https://github.com/awslabs/aws-serverless-express/pull/81/files)
+To get it working with `aws-serverless-express` you need to apply [this patch](https://github.com/awslabs/aws-serverless-express/pull/81/files)
