@@ -77,7 +77,7 @@ Create watcher for `config.json`. It watches for changes and copies that file
 to `dist/config`
 ![File watcher](https://monosnap.com/file/eq6EuGQ8YbI6wq9ROKRMj1BS1KLXq9.png)
 
-**All previous tasks can be done using grunt or gulp**
+**All previous tasks can be done by using grunt or gulp**
 
 Configure Inversion of Control. By creating `ioc.ts`:
 
@@ -234,7 +234,7 @@ export class UserService {
 }
 ```
 
-**Let's look at working with DynamoDB**
+**Let's look into the working with DynamoDB**
 
 Create table:
 
